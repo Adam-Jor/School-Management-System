@@ -161,7 +161,7 @@
             </div>
 
             <div class="mt-5 pt-3 border-t border-line flex items-center justify-between">
-                <span class="font-mono text-xs text-muted tabular-nums">{{ format_number($stats['students_active']) }} siswa aktif</span>
+                <span class="font-mono text-xs text-muted tabular-nums">{{ format_number($stats['students_active'] ?? $stats['students'] ?? 0) }} siswa aktif</span>
                 <a href="{{ route('students.index') }}" wire:navigate
                    class="inline-flex items-center gap-1.5 text-xs font-medium text-ink hover:text-primary transition-colors duration-150">
                     <span>Buka direktori siswa</span>

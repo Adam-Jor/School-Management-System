@@ -4,6 +4,7 @@
         return [
             'users' => \App\Models\User::count(),
             'students' => \App\Models\Student::count(),
+            'students_active' => \App\Models\Student::where('status', 'Aktif')->count(),
             'teachers' => \App\Models\Teacher::count(),
             'classes' => \App\Models\SchoolClass::count(),
             'subjects' => \App\Models\Subject::count(),
