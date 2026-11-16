@@ -11,24 +11,11 @@ use Illuminate\View\View;
 
 class SubjectController extends Controller
 {
-    public function index(Request $request): View
+    public function index(): View
     {
-        $search = trim((string) $request->query('q', ''));
-
-        $subjects = Subject::query()
-            ->withCount('teachers')
-            ->when($search !== '', function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('code', 'like', "%{$search}%")
-                    ->orWhere('description', 'like', "%{$search}%");
-            })
-            ->orderBy('code')
-            ->paginate(8)
-            ->withQueryString();
-
         $archivedCount = Subject::onlyArchived()->count();
 
-        return view('subjects.index', compact('subjects', 'search', 'archivedCount'));
+        return view('subjects.index', compact('archivedCount'));
     }
 
     public function create(): View

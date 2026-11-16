@@ -8,10 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Student extends Model
 {
-    use Archivable, HasFactory;
+    use Archivable, HasFactory, LogsActivity;
 
     protected $table = 'tbl_students';
 
@@ -27,6 +29,15 @@ class Student extends Model
         'status',
         'archived',
     ];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->useLogName('students')
+            ->logOnly(['student_code', 'name', 'class_id', 'status', 'archived'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
+    }
 
     protected static function booted(): void
     {

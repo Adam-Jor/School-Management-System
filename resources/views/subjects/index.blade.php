@@ -3,105 +3,19 @@
 
     <x-page-header
         title="Mata Pelajaran"
-        subtitle="Kelola kurikulum mata pelajaran (tbl_subjects), bobot jam pelajaran (JP), dan jumlah pengajar."
+        subtitle="Kelola kurikulum mata pelajaran, bobot jam pelajaran, dan jumlah pengajar"
         :ctaLabel="$user->isAdmin() ? 'Tambah Mapel' : null"
         :ctaUrl="$user->isAdmin() ? route('subjects.create') : null">
         <x-slot:actions>
             @if ($user->isAdmin())
                 <a href="{{ route('archive.index', ['tab' => 'subjects']) }}" wire:navigate
-                   class="px-4 py-2.5 rounded-md bg-raised border border-line font-mono text-secondary font-semibold text-xs inline-flex items-center gap-1.5 hover:bg-primary hover:text-white transition">
-                    <x-heroicon-o-archive-box class="size-4" />
-                    <span>Archive ({{ format_number($archivedCount) }})</span>
+                   class="edudash-btn-secondary gap-2 text-xs">
+                    <x-heroicon-o-archive-box class="size-4 stroke-[1.5] text-muted" />
+                    <span>Arsip ({{ format_number($archivedCount) }})</span>
                 </a>
             @endif
         </x-slot:actions>
     </x-page-header>
 
-    <x-card>
-        <form action="{{ route('subjects.index') }}" method="GET" class="flex flex-wrap items-center justify-between gap-3 mb-5">
-            <div class="relative flex-1 min-w-[240px] max-w-sm">
-                <x-heroicon-o-magnifying-glass class="size-4 text-muted absolute left-4 top-3 pointer-events-none" />
-                <input type="search"
-                       name="q"
-                       value="{{ $search }}"
-                       placeholder="Cari kode atau nama mata pelajaran…"
-                       class="w-full h-10 pl-10 pr-4 rounded-lg bg-sidebar border border-line text-xs text-ink placeholder:text-muted focus:border-primary focus:outline-none" />
-            </div>
-            <span class="px-4 py-1.5 rounded-md bg-raised border border-line font-mono text-secondary text-xs font-semibold">
-                Total: {{ format_number($subjects->total()) }} Mapel
-            </span>
-        </form>
-
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="border-b border-line text-xs font-medium text-muted">
-                        <th class="py-3 pl-2 text-right w-12">No.</th>
-                        <th class="py-3 px-3">Kode</th>
-                        <th class="py-3 px-3">Nama Mata Pelajaran</th>
-                        <th class="py-3 px-3">Deskripsi Silabus</th>
-                        <th class="py-3 px-3 text-right">Beban JP</th>
-                        <th class="py-3 px-3 text-right">Jumlah Guru</th>
-                        <th class="py-3 px-3">Dibuat</th>
-                        @if ($user->isAdmin())
-                            <th class="py-3 pr-2 text-right">Aksi CRUD</th>
-                        @endif
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-line text-sm">
-                    @forelse ($subjects as $idx => $sub)
-                        <tr class="group hover:bg-page/60 transition duration-150">
-                            <td class="py-3.5 pl-2 text-right text-xs font-semibold text-muted tabular-nums">
-                                {{ format_number(($subjects->currentPage() - 1) * $subjects->perPage() + $idx + 1) }}
-                            </td>
-                            <td class="py-3.5 px-3 text-xs font-mono font-semibold text-primary">
-                                {{ $sub->code }}
-                            </td>
-                            <td class="py-3.5 px-3 text-[13px] font-bold text-ink">
-                                {{ $sub->name }}
-                            </td>
-                            <td class="py-3.5 px-3 text-xs text-muted max-w-md">
-                                {{ $sub->description ?: '–' }}
-                            </td>
-                            <td class="py-3.5 px-3 text-right text-xs font-semibold text-ink tabular-nums">
-                                {{ format_number($sub->credit_hours) }} JP
-                            </td>
-                            <td class="py-3.5 px-3 text-right text-xs font-bold text-primary tabular-nums">
-                                {{ format_number($sub->teachers_count) }} Guru
-                            </td>
-                            <td class="py-3.5 px-3 text-xs text-muted whitespace-nowrap">
-                                {{ format_date($sub->created_at) }}
-                            </td>
-                            @if ($user->isAdmin())
-                                <td class="py-3.5 pr-2 text-right whitespace-nowrap">
-                                    <div class="inline-flex items-center gap-1.5">
-                                        <a href="{{ route('subjects.edit', $sub) }}" wire:navigate
-                                           class="px-3 py-1 rounded-md bg-raised border border-line font-mono text-secondary text-[11px] font-semibold hover:bg-primary hover:text-white transition">
-                                            Edit
-                                        </a>
-                                        <button type="button"
-                                                @click="openArchiveModal('{{ route('subjects.archive', $sub) }}', '{{ addslashes($sub->name) }}', '{{ $sub->code }}')"
-                                                class="px-3 py-1 rounded-full bg-error-soft text-[#B91C1C] text-[11px] font-semibold hover:bg-error hover:text-white transition">
-                                            Archive
-                                        </button>
-                                    </div>
-                                </td>
-                            @endif
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="8">
-                                <x-empty-state title="Data Mata Pelajaran Tidak Ditemukan" />
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-
-        <div class="mt-5 pt-4 border-t border-line flex flex-wrap items-center justify-between gap-3 text-xs text-muted">
-            <span>Menampilkan {{ format_number($subjects->firstItem() ?? 0) }}–{{ format_number($subjects->lastItem() ?? 0) }} dari {{ format_number($subjects->total()) }} mata pelajaran</span>
-            <div>{{ $subjects->links() }}</div>
-        </div>
-    </x-card>
+    <livewire:subjects-table />
 </x-layouts.app>

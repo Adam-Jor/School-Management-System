@@ -84,17 +84,6 @@ return new class extends Migration
             $table->tinyInteger('archived')->default(0)->index();
             $table->timestamps();
         });
-
-        Schema::create('tbl_activity_logs', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->nullable()->index()->constrained('tbl_users')->nullOnDelete();
-            $table->string('action');
-            $table->string('module', 50)->index();
-            $table->string('target_label')->nullable();
-            $table->string('badge_color', 20)->default('primary');
-            $table->tinyInteger('archived')->default(0)->index();
-            $table->timestamps();
-        });
     }
 
     /**
@@ -102,7 +91,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tbl_activity_logs');
         Schema::dropIfExists('tbl_grades');
         Schema::dropIfExists('tbl_attendances');
         Schema::dropIfExists('tbl_students');

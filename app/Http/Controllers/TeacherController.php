@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\TeachersExport;
 use App\Http\Requests\TeacherRequest;
+use App\Imports\TeachersImport;
 use App\Models\ActivityLog;
 use App\Models\SchoolClass;
 use App\Models\Subject;
@@ -16,63 +18,33 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use Maatwebsite\Excel\Excel as ExcelFormat;
+use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class TeacherController extends Controller
 {
-    public function index(Request $request): View|StreamedResponse|Response
+    public function index(Request $request): View|BinaryFileResponse|Response
     {
         $search = trim((string) $request->query('q', ''));
-        $subjectId = $request->query('subject_id', '');
-        $status = $request->query('status', '');
-        $sort = $request->query('sort', 'name_asc');
+        $subjectId = (string) $request->query('subject_id', '');
+        $status = (string) $request->query('status', '');
+        $exportType = (string) $request->query('export', '');
 
-        $query = Teacher::query()
-            ->select('tbl_teachers.*')
-            ->leftJoin('tbl_subjects', 'tbl_teachers.subject_id', '=', 'tbl_subjects.id')
-            ->leftJoin('tbl_users', 'tbl_teachers.user_id', '=', 'tbl_users.id')
-            ->with(['subject', 'user'])
-            ->when($search !== '', function ($q) use ($search) {
-                $q->where(function ($sub) use ($search) {
-                    $sub->where('tbl_teachers.name', 'like', "%{$search}%")
-                        ->orWhere('tbl_teachers.teacher_code', 'like', "%{$search}%")
-                        ->orWhere('tbl_teachers.phone', 'like', "%{$search}%")
-                        ->orWhere('tbl_subjects.name', 'like', "%{$search}%");
-                });
-            })
-            ->when($subjectId !== '', fn ($q) => $q->where('tbl_teachers.subject_id', $subjectId))
-            ->when($status !== '', fn ($q) => $q->where('tbl_teachers.status', $status));
+        if (in_array($exportType, ['xlsx', 'csv'], true)) {
+            $format = $exportType === 'csv' ? ExcelFormat::CSV : ExcelFormat::XLSX;
+            $extension = $exportType === 'csv' ? 'csv' : 'xlsx';
+            ActivityLog::record("Ekspor data guru ({$extension})", 'teachers', 'Maatwebsite Excel Export', 'primary');
 
-        if ($sort === 'latest') {
-            $query->orderByDesc('tbl_teachers.id');
-        } else {
-            $query->orderBy('tbl_teachers.name', 'asc');
+            return Excel::download(
+                new TeachersExport($search, $subjectId, $status),
+                'data-guru-'.now()->format('YmdHis').'.'.$extension,
+                $format
+            );
         }
 
-        if ($request->query('export') === 'csv') {
-            $rows = $query->get();
-            ActivityLog::record('Ekspor data guru (CSV)', 'teachers', count($rows).' data guru', 'primary');
-
-            return response()->streamDownload(function () use ($rows) {
-                $out = fopen('php://output', 'w');
-                fputcsv($out, ['Kode Guru', 'Nama Guru', 'Mata Pelajaran', 'Email Akun', 'No. Telepon', 'Status', 'Tanggal Terdaftar']);
-                foreach ($rows as $row) {
-                    fputcsv($out, [
-                        $row->teacher_code,
-                        $row->name,
-                        $row->subject?->name ?? '-',
-                        $row->user?->email ?? '-',
-                        $row->phone ?? '-',
-                        $row->status,
-                        format_date($row->created_at),
-                    ]);
-                }
-                fclose($out);
-            }, 'data-guru-'.now()->format('YmdHis').'.csv');
-        }
-
-        if ($request->query('export') === 'pdf') {
-            $rows = $query->get();
+        if ($exportType === 'pdf') {
+            $rows = (new TeachersExport($search, $subjectId, $status))->query()->get();
             ActivityLog::record('Ekspor laporan PDF guru', 'teachers', count($rows).' data guru', 'muted');
 
             $pdf = Pdf::loadView('teachers.pdf', ['teachers' => $rows]);
@@ -80,8 +52,6 @@ class TeacherController extends Controller
             return $pdf->download('laporan-data-guru-'.now()->format('YmdHis').'.pdf');
         }
 
-        $teachers = $query->paginate(8)->withQueryString();
-        $subjects = Subject::orderBy('name')->get();
         $stats = [
             'total' => Teacher::count(),
             'active' => Teacher::where('status', 'Aktif')->count(),
@@ -90,15 +60,7 @@ class TeacherController extends Controller
             'archived' => Teacher::onlyArchived()->count(),
         ];
 
-        return view('teachers.index', compact(
-            'teachers',
-            'subjects',
-            'stats',
-            'search',
-            'subjectId',
-            'status',
-            'sort'
-        ));
+        return view('teachers.index', compact('stats'));
     }
 
     public function create(): View
@@ -147,7 +109,7 @@ class TeacherController extends Controller
         });
 
         return redirect()->route('teachers.index')
-            ->with('toast', 'Data guru '.$data['name'].' berhasil ditambahkan!');
+            ->with('toast', 'Data guru '.$data['name'].' berhasil ditambahkan');
     }
 
     public function edit(Teacher $teacher): View
@@ -177,7 +139,7 @@ class TeacherController extends Controller
         );
 
         return redirect()->route('teachers.index')
-            ->with('toast', 'Data guru '.$teacher->name.' berhasil diperbarui!');
+            ->with('toast', 'Data guru '.$teacher->name.' berhasil diperbarui');
     }
 
     public function archive(Request $request, Teacher $teacher): RedirectResponse
@@ -196,50 +158,23 @@ class TeacherController extends Controller
         );
 
         return redirect()->route('teachers.index')
-            ->with('toast', 'Data guru '.$teacher->name.' telah dipindahkan ke Archive.');
+            ->with('toast', 'Data guru '.$teacher->name.' telah dipindahkan ke Archive');
     }
 
     public function import(Request $request): RedirectResponse
     {
         $request->validate([
-            'csv_file' => ['required', 'file', 'mimes:csv,txt', 'max:2048'],
+            'excel_file' => ['required_without:csv_file', 'nullable', 'file', 'mimes:xlsx,xls,csv,txt', 'max:4096'],
+            'csv_file' => ['nullable', 'file', 'mimes:xlsx,xls,csv,txt', 'max:4096'],
         ]);
 
-        $file = $request->file('csv_file');
-        $handle = fopen($file->getRealPath(), 'r');
-        $defaultSubject = Subject::first();
-        $imported = 0;
-        $rowNum = 0;
+        $uploadedFile = $request->file('excel_file') ?? $request->file('csv_file');
+        $importer = new TeachersImport;
+        Excel::import($importer, $uploadedFile);
 
-        while (($row = fgetcsv($handle, 1000, ',')) !== false) {
-            $rowNum++;
-            if ($rowNum === 1 && stripos($row[0] ?? '', 'kode') !== false) {
-                continue;
-            }
-            $code = trim($row[0] ?? '');
-            $name = trim($row[1] ?? '');
-            $phone = trim($row[2] ?? '081200000000');
-            if ($code === '' || $name === '') {
-                continue;
-            }
-            if (Teacher::withArchived()->where('teacher_code', $code)->exists()) {
-                continue;
-            }
-
-            Teacher::create([
-                'teacher_code' => $code,
-                'name' => $name,
-                'phone' => $phone,
-                'subject_id' => $defaultSubject?->id,
-                'status' => 'Aktif',
-            ]);
-            $imported++;
-        }
-        fclose($handle);
-
-        ActivityLog::record('Import CSV data guru', 'teachers', "{$imported} guru berhasil diimpor", 'success');
+        ActivityLog::record('Import Excel/CSV data guru', 'teachers', "{$importer->imported} guru berhasil diimpor", 'success');
 
         return redirect()->route('teachers.index')
-            ->with('toast', "Berhasil mengimpor {$imported} data guru baru.");
+            ->with('toast', "Berhasil mengimpor {$importer->imported} data guru baru");
     }
 }

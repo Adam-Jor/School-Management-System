@@ -6,6 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Masuk — Edudash SMA Contoh Nusantara</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @livewireStyles
 </head>
 <body class="bg-page text-ink min-h-screen flex items-center justify-center p-6">
 
@@ -148,5 +149,6 @@
         </div>
     </div>
 
+    @livewireScripts
 </body>
 </html>

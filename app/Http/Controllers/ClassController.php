@@ -11,24 +11,11 @@ use Illuminate\View\View;
 
 class ClassController extends Controller
 {
-    public function index(Request $request): View
+    public function index(): View
     {
-        $search = trim((string) $request->query('q', ''));
-
-        $classes = SchoolClass::query()
-            ->withCount('students')
-            ->when($search !== '', function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('code', 'like', "%{$search}%")
-                    ->orWhere('description', 'like', "%{$search}%");
-            })
-            ->orderBy('name')
-            ->paginate(8)
-            ->withQueryString();
-
         $archivedCount = SchoolClass::onlyArchived()->count();
 
-        return view('classes.index', compact('classes', 'search', 'archivedCount'));
+        return view('classes.index', compact('archivedCount'));
     }
 
     public function create(): View

@@ -313,19 +313,27 @@
                 <div class="divide-y divide-line">
                     @forelse ($activities as $act)
                         @php
-                            $dotColor = match ($act->badge_color) {
+                            $badgeColor = $act->getExtraProperty('badge_color')
+                                ?? match ($act->event) {
+                                    'created' => 'success',
+                                    'deleted' => 'error',
+                                    default => 'primary',
+                                };
+                            $dotColor = match ($badgeColor) {
                                 'success' => 'bg-success',
                                 'error' => 'bg-error',
                                 'muted' => 'bg-muted',
                                 default => 'bg-primary',
                             };
+                            $targetLabel = $act->getExtraProperty('target_label')
+                                ?? trim(($act->causer?->name ?? 'Sistem') . ' · ' . ($act->log_name ?? 'activity'));
                         @endphp
                         <div class="py-3 first:pt-1 last:pb-1 flex items-start justify-between gap-3">
                             <div class="flex items-start gap-2.5 min-w-0">
                                 <span class="size-2 rounded-full {{ $dotColor }} mt-1.5 shrink-0"></span>
                                 <div class="min-w-0">
-                                    <p class="text-[13px] font-medium text-ink truncate">{{ $act->action }}</p>
-                                    <p class="text-xs text-muted truncate mt-0.5">{{ $act->target_label }}</p>
+                                    <p class="text-[13px] font-medium text-ink truncate">{{ $act->description }}</p>
+                                    <p class="text-xs text-muted truncate mt-0.5">{{ $targetLabel }}</p>
                                 </div>
                             </div>
                             <span class="text-[11px] font-mono text-muted whitespace-nowrap shrink-0 tabular-nums">
@@ -340,19 +348,22 @@
 
             <div class="mt-4 pt-3 border-t border-line flex items-center justify-between text-xs text-muted tabular-nums">
                 <span>{{ format_number(count($activities)) }} catatan terakhir</span>
-                <span class="font-mono text-[11px]">tbl_activity_logs</span>
+                <span class="font-mono text-[11px]">activity_log (spatie)</span>
             </div>
         </x-card>
     </div>
 
     @push('scripts')
-        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
         <script>
             window.edudashChartPayload = @json($chartData);
 
             window.switchEdudashChartMode = function (mode) {
                 const canvas = document.getElementById('studentGrowthChart');
-                if (!canvas || typeof Chart === 'undefined') return;
+                if (!canvas) return;
+                if (typeof window.Chart === 'undefined') {
+                    window.addEventListener('load', () => window.switchEdudashChartMode(mode), { once: true });
+                    return;
+                }
 
                 if (canvas._chartInstance) {
                     canvas._chartInstance.destroy();

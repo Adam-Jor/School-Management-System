@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ActivityLog;
 use App\Models\SchoolClass;
 use App\Models\Student;
 use App\Models\Subject;
@@ -11,6 +10,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
+use Spatie\Activitylog\Models\Activity;
 
 class DashboardController extends Controller
 {
@@ -45,8 +45,8 @@ class DashboardController extends Controller
 
         $latestStudents = $studentsQuery->paginate(5)->withQueryString();
 
-        $activities = ActivityLog::query()
-            ->with('user')
+        $activities = Activity::query()
+            ->with('causer')
             ->latest('id')
             ->limit(5)
             ->get();

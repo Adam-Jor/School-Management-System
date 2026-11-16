@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\StudentsExport;
 use App\Http\Requests\StudentRequest;
+use App\Imports\StudentsImport;
 use App\Models\ActivityLog;
 use App\Models\SchoolClass;
 use App\Models\Student;
@@ -15,66 +17,33 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use Maatwebsite\Excel\Excel as ExcelFormat;
+use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class StudentController extends Controller
 {
-    public function index(Request $request): View|StreamedResponse|Response
+    public function index(Request $request): View|BinaryFileResponse|Response
     {
         $search = trim((string) $request->query('q', ''));
-        $classId = $request->query('class_id', '');
-        $status = $request->query('status', '');
-        $sort = $request->query('sort', 'latest');
+        $classId = (string) $request->query('class_id', '');
+        $status = (string) $request->query('status', '');
+        $exportType = (string) $request->query('export', '');
 
-        // Menggunakan JOIN ke tbl_classes dan tbl_users sesuai PRD 4.3 & 6
-        $query = Student::query()
-            ->select('tbl_students.*')
-            ->leftJoin('tbl_classes', 'tbl_students.class_id', '=', 'tbl_classes.id')
-            ->leftJoin('tbl_users', 'tbl_students.user_id', '=', 'tbl_users.id')
-            ->with(['schoolClass', 'user'])
-            ->when($search !== '', function ($q) use ($search) {
-                $q->where(function ($sub) use ($search) {
-                    $sub->where('tbl_students.name', 'like', "%{$search}%")
-                        ->orWhere('tbl_students.student_code', 'like', "%{$search}%")
-                        ->orWhere('tbl_users.email', 'like', "%{$search}%")
-                        ->orWhere('tbl_classes.name', 'like', "%{$search}%");
-                });
-            })
-            ->when($classId !== '', fn ($q) => $q->where('tbl_students.class_id', $classId))
-            ->when($status !== '', fn ($q) => $q->where('tbl_students.status', $status));
+        if (in_array($exportType, ['xlsx', 'csv'], true)) {
+            $format = $exportType === 'csv' ? ExcelFormat::CSV : ExcelFormat::XLSX;
+            $extension = $exportType === 'csv' ? 'csv' : 'xlsx';
+            ActivityLog::record("Ekspor data siswa ({$extension})", 'students', 'Maatwebsite Excel Export', 'primary');
 
-        if ($sort === 'name_asc') {
-            $query->orderBy('tbl_students.name', 'asc');
-        } elseif ($sort === 'code_asc') {
-            $query->orderBy('tbl_students.student_code', 'asc');
-        } else {
-            $query->orderByDesc('tbl_students.id');
+            return Excel::download(
+                new StudentsExport($search, $classId, $status),
+                'data-siswa-'.now()->format('YmdHis').'.'.$extension,
+                $format
+            );
         }
 
-        if ($request->query('export') === 'csv') {
-            $rows = $query->get();
-            ActivityLog::record('Ekspor data siswa (CSV/Excel)', 'students', count($rows).' baris data siswa', 'primary');
-
-            return response()->streamDownload(function () use ($rows) {
-                $out = fopen('php://output', 'w');
-                fputcsv($out, ['Kode Siswa', 'Nama Lengkap', 'Kelas', 'Email Akun', 'No. Telepon', 'Status', 'Tanggal Terdaftar']);
-                foreach ($rows as $row) {
-                    fputcsv($out, [
-                        $row->student_code,
-                        $row->name,
-                        $row->schoolClass?->name ?? '-',
-                        $row->user?->email ?? '-',
-                        $row->phone ?? '-',
-                        $row->status,
-                        format_date($row->created_at),
-                    ]);
-                }
-                fclose($out);
-            }, 'data-siswa-'.now()->format('YmdHis').'.csv');
-        }
-
-        if ($request->query('export') === 'pdf') {
-            $rows = $query->get();
+        if ($exportType === 'pdf') {
+            $rows = (new StudentsExport($search, $classId, $status))->query()->get();
             ActivityLog::record('Ekspor laporan PDF siswa', 'students', count($rows).' data siswa', 'muted');
 
             $pdf = Pdf::loadView('students.pdf', ['students' => $rows]);
@@ -82,19 +51,9 @@ class StudentController extends Controller
             return $pdf->download('laporan-data-siswa-'.now()->format('YmdHis').'.pdf');
         }
 
-        $students = $query->paginate(8)->withQueryString();
-        $classes = SchoolClass::orderBy('name')->get();
         $archivedCount = Student::onlyArchived()->count();
 
-        return view('students.index', compact(
-            'students',
-            'classes',
-            'search',
-            'classId',
-            'status',
-            'sort',
-            'archivedCount'
-        ));
+        return view('students.index', compact('archivedCount'));
     }
 
     public function create(): View
@@ -142,7 +101,7 @@ class StudentController extends Controller
         });
 
         return redirect()->route('students.index')
-            ->with('toast', 'Data siswa '.$data['name'].' ('.$data['student_code'].') berhasil disimpan!');
+            ->with('toast', 'Data siswa '.$data['name'].' ('.$data['student_code'].') berhasil disimpan');
     }
 
     public function edit(Student $student): View
@@ -171,7 +130,7 @@ class StudentController extends Controller
         );
 
         return redirect()->route('students.index')
-            ->with('toast', 'Data siswa '.$student->name.' ('.$student->student_code.') berhasil diperbarui!');
+            ->with('toast', 'Data siswa '.$student->name.' ('.$student->student_code.') berhasil diperbarui');
     }
 
     public function archive(Request $request, Student $student): RedirectResponse
@@ -190,51 +149,26 @@ class StudentController extends Controller
         );
 
         return redirect()->route('students.index')
-            ->with('toast', 'Data siswa '.$student->name.' telah dipindahkan ke Archive.');
+            ->with('toast', 'Data siswa '.$student->name.' telah dipindahkan ke Archive');
     }
 
     public function import(Request $request): RedirectResponse
     {
         $request->validate([
-            'csv_file' => ['required', 'file', 'mimes:csv,txt', 'max:2048'],
+            'excel_file' => ['required_without:csv_file', 'nullable', 'file', 'mimes:xlsx,xls,csv,txt', 'max:4096'],
+            'csv_file' => ['nullable', 'file', 'mimes:xlsx,xls,csv,txt', 'max:4096'],
         ], [
-            'csv_file.required' => 'Pilih file CSV untuk diimpor.',
-            'csv_file.mimes' => 'File harus berformat CSV (.csv).',
+            'excel_file.required_without' => 'Pilih file Excel (.xlsx) atau CSV untuk diimpor.',
+            'excel_file.mimes' => 'File harus berformat XLSX, XLS, atau CSV.',
         ]);
 
-        $file = $request->file('csv_file');
-        $handle = fopen($file->getRealPath(), 'r');
-        $defaultClass = SchoolClass::first();
-        $imported = 0;
-        $rowNum = 0;
+        $uploadedFile = $request->file('excel_file') ?? $request->file('csv_file');
+        $importer = new StudentsImport;
+        Excel::import($importer, $uploadedFile);
 
-        while (($row = fgetcsv($handle, 1000, ',')) !== false) {
-            $rowNum++;
-            if ($rowNum === 1 && stripos($row[0] ?? '', 'kode') !== false) {
-                continue;
-            }
-            $code = trim($row[0] ?? '');
-            $name = trim($row[1] ?? '');
-            if ($code === '' || $name === '') {
-                continue;
-            }
-            if (Student::withArchived()->where('student_code', $code)->exists()) {
-                continue;
-            }
-
-            Student::create([
-                'student_code' => $code,
-                'name' => $name,
-                'class_id' => $defaultClass?->id,
-                'status' => in_array($row[2] ?? '', ['Aktif', 'Pindah', 'Menunggu'], true) ? $row[2] : 'Aktif',
-            ]);
-            $imported++;
-        }
-        fclose($handle);
-
-        ActivityLog::record('Import CSV data siswa', 'students', "{$imported} siswa berhasil diimpor", 'success');
+        ActivityLog::record('Import Excel/CSV data siswa', 'students', "{$importer->imported} siswa berhasil diimpor", 'success');
 
         return redirect()->route('students.index')
-            ->with('toast', "Berhasil mengimpor {$imported} data siswa baru.");
+            ->with('toast', "Berhasil mengimpor {$importer->imported} data siswa baru");
     }
 }

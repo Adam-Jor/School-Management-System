@@ -7,10 +7,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Subject extends Model
 {
-    use Archivable, HasFactory;
+    use Archivable, HasFactory, LogsActivity;
 
     protected $table = 'tbl_subjects';
 
@@ -22,6 +24,15 @@ class Subject extends Model
         'credit_hours',
         'archived',
     ];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->useLogName('subjects')
+            ->logOnly(['code', 'name', 'credit_hours', 'archived'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
+    }
 
     protected static function booted(): void
     {

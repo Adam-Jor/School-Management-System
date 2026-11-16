@@ -2,40 +2,28 @@
 
 namespace App\Models;
 
-use App\Traits\Archivable;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Auth;
+use Spatie\Activitylog\Contracts\Activity as ActivityContract;
+use Spatie\Activitylog\Models\Activity;
 
-class ActivityLog extends Model
+class ActivityLog
 {
-    use Archivable, HasFactory;
-
-    protected $table = 'tbl_activity_logs';
-
-    protected $fillable = [
-        'user_id',
-        'action',
-        'module',
-        'target_label',
-        'badge_color',
-        'archived',
-    ];
-
-    public function user(): BelongsTo
+    /**
+     * Record a domain or user activity into Spatie's activity_log table.
+     */
+    public static function record(string $action, string $module, ?string $targetLabel = null, string $badgeColor = 'primary'): ?ActivityContract
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return activity($module)
+            ->causedBy(Auth::user())
+            ->withProperties([
+                'target_label' => $targetLabel,
+                'badge_color' => $badgeColor,
+            ])
+            ->log($action);
     }
 
-    public static function record(string $action, string $module, ?string $targetLabel = null, string $badgeColor = 'primary'): self
+    public static function query()
     {
-        return static::create([
-            'user_id' => Auth::id(),
-            'action' => $action,
-            'module' => $module,
-            'target_label' => $targetLabel,
-            'badge_color' => $badgeColor,
-        ]);
+        return Activity::query();
     }
 }

@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\ActivityLog;
 use App\Models\Attendance;
 use App\Models\Grade;
 use App\Models\SchoolClass;
@@ -246,13 +245,14 @@ class DatabaseSeeder extends Seeder
         ];
 
         foreach ($logs as $index => $log) {
-            $entry = ActivityLog::create([
-                'user_id' => $admin->id,
-                'action' => $log['action'],
-                'module' => $log['module'],
-                'target_label' => $log['target_label'],
-                'badge_color' => $log['badge_color'],
-            ]);
+            $entry = activity($log['module'])
+                ->causedBy($admin)
+                ->withProperties([
+                    'target_label' => $log['target_label'],
+                    'badge_color' => $log['badge_color'],
+                ])
+                ->log($log['action']);
+
             $entry->timestamps = false;
             $entry->created_at = now()->subMinutes(($index + 1) * 14);
             $entry->save();
