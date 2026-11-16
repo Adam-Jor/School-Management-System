@@ -4,11 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\SchoolClass;
 use App\Models\Student;
-use App\Models\Subject;
 use App\Models\Teacher;
-use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 use Spatie\Activitylog\Models\Activity;
 
@@ -16,16 +14,7 @@ class DashboardController extends Controller
 {
     public function index(Request $request): View
     {
-        $stats = Cache::remember('edudash_dashboard_stats', 180, function () {
-            return [
-                'users' => User::count(),
-                'students' => Student::count(),
-                'students_active' => Student::where('status', 'Aktif')->count(),
-                'teachers' => Teacher::count(),
-                'classes' => SchoolClass::count(),
-                'subjects' => Subject::count(),
-            ];
-        });
+        $stats = edudash_dashboard_stats();
 
         $search = trim((string) $request->query('q', ''));
         $statusFilter = trim((string) $request->query('status', ''));
@@ -51,6 +40,21 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
+        // Hitung tren kumulatif siswa 12 bulan terakhir langsung dari tbl_students.created_at
+        $windowStart = now()->startOfMonth()->subMonths(11);
+        $studentDates = Student::pluck('created_at');
+
+        $growthLabels = [];
+        $growthValues = [];
+        for ($i = 0; $i < 12; $i++) {
+            $month = $windowStart->copy()->addMonths($i);
+            $monthEnd = $month->copy()->endOfMonth();
+            $growthLabels[] = indonesian_month_short($month->month).' '.$month->format('y');
+            $growthValues[] = $studentDates->filter(function ($date) use ($monthEnd) {
+                return $date && Carbon::parse($date)->lte($monthEnd);
+            })->count();
+        }
+
         $classesWithCount = SchoolClass::withCount('students')->orderBy('name')->get();
         $statusCounts = [
             'Aktif' => Student::where('status', 'Aktif')->count(),
@@ -59,8 +63,8 @@ class DashboardController extends Controller
         ];
 
         $chartData = [
-            'labels' => ['Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des', 'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun'],
-            'values' => [845, 868, 892, 920, 945, 972, 1012, 1042, 1058, 1074, 1090, 1105],
+            'labels' => $growthLabels,
+            'values' => $growthValues,
             'class_labels' => $classesWithCount->pluck('name')->values()->all(),
             'class_values' => $classesWithCount->pluck('students_count')->values()->all(),
             'status_labels' => array_keys($statusCounts),

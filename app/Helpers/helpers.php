@@ -1,10 +1,32 @@
 <?php
 
+use App\Models\SchoolClass;
+use App\Models\Student;
+use App\Models\Subject;
+use App\Models\Teacher;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Intervention\Image\Drivers\Gd\Driver;
 use Intervention\Image\ImageManager;
+
+if (! function_exists('indonesian_month_short')) {
+    /**
+     * Singkatan nama bulan dalam Bahasa Indonesia.
+     */
+    function indonesian_month_short(int $month): string
+    {
+        $months = [
+            1 => 'Jan', 2 => 'Feb', 3 => 'Mar', 4 => 'Apr',
+            5 => 'Mei', 6 => 'Jun', 7 => 'Jul', 8 => 'Agu',
+            9 => 'Sep', 10 => 'Okt', 11 => 'Nov', 12 => 'Des',
+        ];
+
+        return $months[$month] ?? 'Jan';
+    }
+}
 
 if (! function_exists('format_number')) {
     /**
@@ -30,20 +52,47 @@ if (! function_exists('format_date')) {
             return '–';
         }
 
-        $months = [
-            1 => 'Jan', 2 => 'Feb', 3 => 'Mar', 4 => 'Apr',
-            5 => 'Mei', 6 => 'Jun', 7 => 'Jul', 8 => 'Agu',
-            9 => 'Sep', 10 => 'Okt', 11 => 'Nov', 12 => 'Des',
-        ];
-
         $carbon = $date instanceof DateTimeInterface ? Carbon::instance($date) : Carbon::parse($date);
-        $formatted = $carbon->day.' '.($months[$carbon->month] ?? $carbon->format('M')).' '.$carbon->year;
+        $formatted = $carbon->day.' '.indonesian_month_short($carbon->month).' '.$carbon->year;
 
         if ($withTime) {
             $formatted .= ' · '.$carbon->format('H:i');
         }
 
         return $formatted;
+    }
+}
+
+if (! function_exists('edudash_dashboard_stats')) {
+    /**
+     * Ambil ringkasan metrik KPI dan delta bulanan dari database secara terpusat (cached).
+     *
+     * @return array<string, int>
+     */
+    function edudash_dashboard_stats(): array
+    {
+        return Cache::remember('edudash_dashboard_stats', 180, function () {
+            $thisMonthStart = now()->startOfMonth();
+            $lastMonthStart = now()->startOfMonth()->subMonth();
+            $lastMonthEnd = $thisMonthStart->copy()->subSecond();
+
+            return [
+                'users' => User::count(),
+                'users_this_month' => User::where('created_at', '>=', $thisMonthStart)->count(),
+                'users_last_month' => User::whereBetween('created_at', [$lastMonthStart, $lastMonthEnd])->count(),
+                'students' => Student::count(),
+                'students_active' => Student::where('status', 'Aktif')->count(),
+                'students_this_month' => Student::where('created_at', '>=', $thisMonthStart)->count(),
+                'students_last_month' => Student::whereBetween('created_at', [$lastMonthStart, $lastMonthEnd])->count(),
+                'teachers' => Teacher::count(),
+                'teachers_active' => Teacher::where('status', 'Aktif')->count(),
+                'teachers_this_month' => Teacher::where('created_at', '>=', $thisMonthStart)->count(),
+                'classes' => SchoolClass::count(),
+                'classes_filled' => SchoolClass::has('students')->count(),
+                'subjects' => Subject::count(),
+                'subjects_with_teachers' => Subject::has('teachers')->count(),
+            ];
+        });
     }
 }
 

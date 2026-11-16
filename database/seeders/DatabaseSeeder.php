@@ -19,10 +19,12 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        activity()->disableLogging();
+
         $password = Hash::make('password');
 
         // 1. Admin User
-        $admin = User::create([
+        $admin = User::forceCreate([
             'name' => 'Administrator Utama',
             'email' => 'admin@edudash.sch.id',
             'username' => 'admin',
@@ -31,6 +33,8 @@ class DatabaseSeeder extends Seeder
             'role' => 'admin',
             'status' => 'Aktif',
             'last_login_time' => now()->subMinutes(5),
+            'created_at' => now()->subMonths(11),
+            'updated_at' => now()->subMonths(11),
         ]);
 
         // 2. Subjects (tbl_subjects)
@@ -151,8 +155,11 @@ class DatabaseSeeder extends Seeder
             ],
         ];
 
-        foreach ($teachersData as $t) {
-            $user = User::create([
+        $teacherMonthOffsets = [10, 8, 6, 5, 4, 2, 1, 0];
+        foreach ($teachersData as $idx => $t) {
+            $createdAt = now()->subMonths($teacherMonthOffsets[$idx] ?? 0)->startOfMonth()->addDays(5 + $idx);
+
+            $user = User::forceCreate([
                 'name' => $t['name'],
                 'email' => $t['email'],
                 'username' => $t['username'],
@@ -161,9 +168,11 @@ class DatabaseSeeder extends Seeder
                 'role' => 'teacher',
                 'status' => $t['status'],
                 'last_login_time' => now()->subHours(rand(1, 24)),
+                'created_at' => $createdAt,
+                'updated_at' => $createdAt,
             ]);
 
-            Teacher::create([
+            Teacher::forceCreate([
                 'user_id' => $user->id,
                 'subject_id' => $subjects[$t['subject_code']]->id,
                 'teacher_code' => $t['teacher_code'],
@@ -171,6 +180,8 @@ class DatabaseSeeder extends Seeder
                 'phone' => $t['phone'],
                 'status' => $t['status'],
                 'notes' => $t['notes'],
+                'created_at' => $createdAt,
+                'updated_at' => $createdAt,
             ]);
         }
 
@@ -190,9 +201,12 @@ class DatabaseSeeder extends Seeder
             ['code' => 'STD-012', 'name' => 'Lutfi Hakim Ramadhan', 'email' => 'lutfi.hakim@sch.id', 'username' => 'lutfi.hakim', 'class' => '12 IPA 1', 'status' => 'Aktif', 'phone' => '081234000012', 'address' => 'Jl. Ciumbuleuit No. 39, Cidadap, Kota Bandung'],
         ];
 
+        $studentMonthOffsets = [11, 10, 9, 8, 6, 5, 4, 3, 2, 1, 0, 0];
         $createdStudents = [];
-        foreach ($studentsData as $s) {
-            $user = User::create([
+        foreach ($studentsData as $idx => $s) {
+            $createdAt = now()->subMonths($studentMonthOffsets[$idx] ?? 0)->startOfMonth()->addDays(min(14, 2 + $idx));
+
+            $user = User::forceCreate([
                 'name' => $s['name'],
                 'email' => $s['email'],
                 'username' => $s['username'],
@@ -201,9 +215,11 @@ class DatabaseSeeder extends Seeder
                 'role' => 'student',
                 'status' => $s['status'] === 'Pindah' ? 'Nonaktif' : 'Aktif',
                 'last_login_time' => now()->subHours(rand(2, 72)),
+                'created_at' => $createdAt,
+                'updated_at' => $createdAt,
             ]);
 
-            $student = Student::create([
+            $student = Student::forceCreate([
                 'user_id' => $user->id,
                 'class_id' => $classes[$s['class']]->id,
                 'student_code' => $s['code'],
@@ -211,6 +227,8 @@ class DatabaseSeeder extends Seeder
                 'phone' => $s['phone'],
                 'address' => $s['address'],
                 'status' => $s['status'],
+                'created_at' => $createdAt,
+                'updated_at' => $createdAt,
             ]);
 
             $createdStudents[] = $student;
@@ -236,6 +254,8 @@ class DatabaseSeeder extends Seeder
         }
 
         // 7. Activity Logs (design.md Section 4.8)
+        activity()->enableLogging();
+
         $logs = [
             ['action' => 'Data siswa diperbarui', 'module' => 'students', 'target_label' => 'Admin · Alya Putri Ramadhani (STD-001)', 'badge_color' => 'primary'],
             ['action' => 'Kelas baru ditambahkan', 'module' => 'classes', 'target_label' => 'Admin · Kelas 10 IPA 1 (CLS-10A1)', 'badge_color' => 'success'],

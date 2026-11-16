@@ -1,15 +1,6 @@
 @php
     $user = auth()->user();
-    $counts = \Illuminate\Support\Facades\Cache::remember('edudash_dashboard_stats', 180, function () {
-        return [
-            'users' => \App\Models\User::count(),
-            'students' => \App\Models\Student::count(),
-            'students_active' => \App\Models\Student::where('status', 'Aktif')->count(),
-            'teachers' => \App\Models\Teacher::count(),
-            'classes' => \App\Models\SchoolClass::count(),
-            'subjects' => \App\Models\Subject::count(),
-        ];
-    });
+    $counts = edudash_dashboard_stats();
 @endphp
 
 <aside :class="mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"

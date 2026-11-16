@@ -75,29 +75,50 @@
         </div>
     @endif
 
-    <!-- KPI Strip (1 card, 5 columns, tabular figures, explicit comparisons) -->
+    <!-- KPI Strip (1 card, 5 columns, tabular figures, real DB counts & deltas) -->
     <x-card class="mb-6">
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-y-4 lg:divide-x lg:divide-line">
-            <x-stat-card label="Pengguna terdaftar" :value="$stats['users']" delta="+8 vs bulan lalu" deltaType="success" />
-            <x-stat-card label="Siswa aktif" :value="$stats['students']" delta="+24 vs bulan lalu" deltaType="success" />
-            <x-stat-card label="Guru pengajar" :value="$stats['teachers']" delta="+2 vs bulan lalu" deltaType="success" />
-            <x-stat-card label="Rombongan belajar" :value="$stats['classes']" delta="8 kelas terisi" deltaType="primary" />
-            <x-stat-card label="Mata pelajaran" :value="$stats['subjects']" delta="Kurikulum Merdeka" deltaType="muted" />
+            <x-stat-card
+                label="Pengguna terdaftar"
+                :value="$stats['users']"
+                :delta="'+' . format_number($stats['users_this_month'] ?? 0) . ' bln ini (vs ' . format_number($stats['users_last_month'] ?? 0) . ' bln lalu)'"
+                deltaType="success" />
+            <x-stat-card
+                label="Total siswa"
+                :value="$stats['students']"
+                :delta="format_number($stats['students_active'] ?? 0) . ' aktif · +' . format_number($stats['students_this_month'] ?? 0) . ' bln ini'"
+                deltaType="success" />
+            <x-stat-card
+                label="Guru pengajar"
+                :value="$stats['teachers']"
+                :delta="format_number($stats['teachers_active'] ?? 0) . ' aktif · +' . format_number($stats['teachers_this_month'] ?? 0) . ' bln ini'"
+                deltaType="success" />
+            <x-stat-card
+                label="Rombongan belajar"
+                :value="$stats['classes']"
+                :delta="format_number($stats['classes_filled'] ?? 0) . ' dari ' . format_number($stats['classes']) . ' kelas terisi'"
+                deltaType="primary" />
+            <x-stat-card
+                label="Mata pelajaran"
+                :value="$stats['subjects']"
+                :delta="format_number($stats['subjects_with_teachers'] ?? 0) . ' mapel ada pengajar'"
+                deltaType="muted" />
         </div>
     </x-card>
 
     <!-- Middle Row: Main Chart (col-span-8) & Academic Registry Card (col-span-4) -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
         <!-- Main Chart (The Bright Element / Moment 1) -->
-        <x-card class="lg:col-span-8 flex flex-col justify-between">
+        <x-card class="lg:col-span-8 flex flex-col justify-between" x-data="{ openTable: false, chartMode: 'growth', payload: @js($chartData) }">
             <div>
                 <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
                     <div>
                         <h2 class="text-base font-medium text-ink">Tren & Distribusi Siswa</h2>
-                        <p class="text-xs text-muted mt-0.5">Rekapitulasi jumlah siswa aktif per periode, kelas, dan status</p>
+                        <p class="text-xs text-muted mt-0.5">Rekapitulasi data riil siswa per periode (kumulatif), kelas, dan status</p>
                     </div>
                     <select id="chartModeSelector"
-                            onchange="window.switchEdudashChartMode(this.value)"
+                            x-model="chartMode"
+                            @change="window.switchEdudashChartMode(chartMode)"
                             aria-label="Pilih mode grafik siswa"
                             class="h-9 px-3 rounded-lg bg-sidebar border border-line text-xs font-normal text-ink focus:border-primary focus:outline-none">
                         <option value="growth">Tren bulanan (12 bulan)</option>
@@ -111,8 +132,8 @@
                 </div>
             </div>
 
-            <!-- Accessible Data Table Collapse -->
-            <div class="mt-4 pt-3 border-t border-line" x-data="{ openTable: false }">
+            <!-- Accessible Data Table Collapse (Sinkron dengan mode dropdown aktif) -->
+            <div class="mt-4 pt-3 border-t border-line">
                 <button type="button"
                         @click="openTable = !openTable"
                         class="text-xs font-normal text-muted hover:text-ink flex items-center gap-1.5 transition-colors duration-150">
@@ -123,16 +144,16 @@
                     <table class="w-full text-xs border-collapse">
                         <thead>
                             <tr class="text-muted border-b border-line">
-                                @foreach ($chartData['class_labels'] as $lbl)
-                                    <th class="py-1.5 px-2 text-right font-normal">{{ $lbl }}</th>
-                                @endforeach
+                                <template x-for="(lbl, idx) in (chartMode === 'class' ? payload.class_labels : (chartMode === 'status' ? payload.status_labels : payload.labels))" :key="'hdr-' + idx">
+                                    <th class="py-1.5 px-2 text-right font-normal whitespace-nowrap" x-text="lbl"></th>
+                                </template>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                @foreach ($chartData['class_values'] as $val)
-                                    <td class="py-1.5 px-2 text-right font-mono font-medium text-ink tabular-nums">{{ format_number($val) }}</td>
-                                @endforeach
+                                <template x-for="(val, idx) in (chartMode === 'class' ? payload.class_values : (chartMode === 'status' ? payload.status_values : payload.values))" :key="'val-' + idx">
+                                    <td class="py-1.5 px-2 text-right font-mono font-medium text-ink tabular-nums" x-text="Number(val).toLocaleString('id-ID')"></td>
+                                </template>
                             </tr>
                         </tbody>
                     </table>

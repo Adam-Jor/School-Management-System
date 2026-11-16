@@ -131,3 +131,39 @@ test('maatwebsite excel exports students as xlsx download', function () {
     $response->assertStatus(200);
     expect($response->headers->get('content-disposition'))->toContain('.xlsx');
 });
+
+test('dashboard displays real database KPI stats and 12-month student growth counts', function () {
+    $admin = User::factory()->create(['role' => 'admin']);
+    $classA = SchoolClass::create(['code' => 'CLS-10A1', 'name' => '10 IPA 1', 'capacity' => 36]);
+
+    Student::forceCreate([
+        'student_code' => 'STD-401',
+        'name' => 'Siswa Bulan Lalu',
+        'class_id' => $classA->id,
+        'status' => 'Aktif',
+        'created_at' => now()->subMonths(2),
+        'updated_at' => now()->subMonths(2),
+    ]);
+    Student::forceCreate([
+        'student_code' => 'STD-402',
+        'name' => 'Siswa Bulan Ini',
+        'class_id' => $classA->id,
+        'status' => 'Menunggu',
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    $response = $this->actingAs($admin)->get('/dashboard');
+
+    $response->assertStatus(200)
+        ->assertViewHas('stats', fn ($stats) => $stats['students'] === 2 && $stats['students_active'] === 1)
+        ->assertViewHas('chartData', function ($chart) {
+            return count($chart['labels']) === 12
+                && count($chart['values']) === 12
+                && $chart['values'][8] === 0
+                && $chart['values'][9] === 1
+                && $chart['values'][10] === 1
+                && $chart['values'][11] === 2
+                && $chart['status_values'] === [1, 0, 1];
+        });
+});
