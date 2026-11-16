@@ -155,6 +155,17 @@ class DatabaseSeeder extends Seeder
             ],
         ];
 
+        $teacherClassMap = [
+            'TCH-001' => ['10 IPA 1', '10 IPA 2', '11 IPA 1'],
+            'TCH-002' => ['11 IPS 2', '10 IPS 1', '12 IPS 1'],
+            'TCH-003' => ['12 IPA 1', '12 IPA 2'],
+            'TCH-004' => ['10 IPS 1', '10 IPA 1'],
+            'TCH-005' => ['10 IPA 1', '11 IPA 1', '12 IPA 1'],
+            'TCH-006' => ['11 IPA 1', '12 IPA 2'],
+            'TCH-007' => ['10 IPA 2'],
+            'TCH-008' => ['12 IPA 2', '12 IPS 1'],
+        ];
+
         $teacherMonthOffsets = [10, 8, 6, 5, 4, 2, 1, 0];
         foreach ($teachersData as $idx => $t) {
             $createdAt = now()->subMonths($teacherMonthOffsets[$idx] ?? 0)->startOfMonth()->addDays(5 + $idx);
@@ -172,7 +183,7 @@ class DatabaseSeeder extends Seeder
                 'updated_at' => $createdAt,
             ]);
 
-            Teacher::forceCreate([
+            $teacher = Teacher::forceCreate([
                 'user_id' => $user->id,
                 'subject_id' => $subjects[$t['subject_code']]->id,
                 'teacher_code' => $t['teacher_code'],
@@ -183,6 +194,15 @@ class DatabaseSeeder extends Seeder
                 'created_at' => $createdAt,
                 'updated_at' => $createdAt,
             ]);
+
+            $classIds = collect($teacherClassMap[$t['teacher_code']] ?? [])
+                ->map(fn ($name) => $classes[$name]->id ?? null)
+                ->filter()
+                ->values()
+                ->all();
+            if (! empty($classIds)) {
+                $teacher->schoolClasses()->sync($classIds);
+            }
         }
 
         // 5. Students (tbl_users + tbl_students)

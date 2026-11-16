@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AttendanceRequest;
 use App\Models\ActivityLog;
 use App\Models\Attendance;
 use App\Models\SchoolClass;
@@ -14,30 +15,65 @@ class AttendanceController extends Controller
 {
     public function index(Request $request): View
     {
-        $classes = SchoolClass::orderBy('name')->get();
-        $selectedClassId = (int) ($request->query('class_id') ?: ($classes->first()?->id ?? 0));
-        $selectedDate = $request->query('date', now()->toDateString());
-        $selectedMonth = $request->query('month', now()->format('Y-m'));
+        $user = $request->user();
+        $selectedDate = (string) $request->query('date', now()->toDateString());
+        $selectedMonth = (string) $request->query('month', now()->format('Y-m'));
 
-        $students = Student::query()
-            ->where('class_id', $selectedClassId)
-            ->orderBy('name')
-            ->get();
+        if ($user->isAdmin()) {
+            $classes = SchoolClass::orderBy('name')->get();
+            $selectedClassId = (int) ($request->query('class_id') ?: ($classes->first()?->id ?? 0));
+            $canRecordAttendance = $selectedClassId > 0 && $classes->contains('id', $selectedClassId);
+            $students = Student::query()
+                ->where('class_id', $selectedClassId)
+                ->orderBy('name')
+                ->get();
+        } elseif ($user->isTeacher()) {
+            $teacher = $user->teacher;
+            $classes = $teacher
+                ? $teacher->schoolClasses()->orderBy('name')->get()
+                : collect();
 
-        $dailyAttendances = Attendance::query()
-            ->where('class_id', $selectedClassId)
-            ->whereDate('date', $selectedDate)
-            ->get()
-            ->keyBy('student_id');
+            if ($request->filled('class_id')) {
+                $requestedClassId = (int) $request->query('class_id');
+                if (! $classes->contains('id', $requestedClassId)) {
+                    abort(403, 'Akses ditolak. Anda hanya dapat mengelola absensi untuk kelas yang sedang Anda ajar.');
+                }
+            }
 
-        // Rekap bulanan per siswa pada kelas terpilih
+            $selectedClassId = (int) ($request->query('class_id') ?: ($classes->first()?->id ?? 0));
+            $canRecordAttendance = $selectedClassId > 0 && $classes->contains('id', $selectedClassId);
+            $students = $selectedClassId > 0
+                ? Student::query()->where('class_id', $selectedClassId)->orderBy('name')->get()
+                : collect();
+        } else {
+            $ownStudent = $user->student?->load('schoolClass');
+            $classes = $ownStudent?->schoolClass ? collect([$ownStudent->schoolClass]) : collect();
+            $selectedClassId = (int) ($ownStudent?->class_id ?? 0);
+            $canRecordAttendance = false;
+            $students = $ownStudent ? collect([$ownStudent]) : collect();
+        }
+
+        $studentIds = $students->pluck('id');
+
+        $dailyAttendances = $selectedClassId > 0 && $studentIds->isNotEmpty()
+            ? Attendance::query()
+                ->where('class_id', $selectedClassId)
+                ->whereIn('student_id', $studentIds)
+                ->whereDate('date', $selectedDate)
+                ->get()
+                ->keyBy('student_id')
+            : collect();
+
         [$year, $month] = array_pad(explode('-', $selectedMonth), 2, now()->format('m'));
-        $monthlyRecords = Attendance::query()
-            ->where('class_id', $selectedClassId)
-            ->whereYear('date', (int) $year)
-            ->whereMonth('date', (int) $month)
-            ->get()
-            ->groupBy('student_id');
+        $monthlyRecords = $selectedClassId > 0 && $studentIds->isNotEmpty()
+            ? Attendance::query()
+                ->where('class_id', $selectedClassId)
+                ->whereIn('student_id', $studentIds)
+                ->whereYear('date', (int) $year)
+                ->whereMonth('date', (int) $month)
+                ->get()
+                ->groupBy('student_id')
+            : collect();
 
         $monthlySummary = [];
         foreach ($students as $st) {
@@ -57,19 +93,14 @@ class AttendanceController extends Controller
             'selectedMonth',
             'students',
             'dailyAttendances',
-            'monthlySummary'
+            'monthlySummary',
+            'canRecordAttendance'
         ));
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(AttendanceRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'class_id' => ['required', 'exists:tbl_classes,id'],
-            'date' => ['required', 'date'],
-            'statuses' => ['required', 'array'],
-            'statuses.*' => ['required', 'in:Hadir,Izin,Sakit,Alpa'],
-            'notes' => ['nullable', 'array'],
-        ]);
+        $validated = $request->validated();
 
         foreach ($validated['statuses'] as $studentId => $status) {
             Attendance::updateOrCreate(

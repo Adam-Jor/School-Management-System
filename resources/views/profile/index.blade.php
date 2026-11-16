@@ -33,7 +33,7 @@
                 </div>
             </div>
 
-            <!-- Jika user adalah Student: Tampilkan Rapor & Absensi Pribadi (PRD Bagian 8) -->
+            <!-- Jika user adalah Student: Tampilkan Rapor & Absensi Pribadi -->
             @if ($user->student)
                 <x-card class="space-y-3">
                     <h3 class="text-sm font-semibold text-ink">Data Akademik Siswa Pribadi</h3>
@@ -48,7 +48,34 @@
                         </div>
                         <div class="flex justify-between">
                             <span class="text-muted">Total Hadir</span>
-                            <span class="font-semibold text-[#15803D]">{{ format_number($user->student->attendances->count()) }} Hari</span>
+                            <span class="font-semibold text-[#15803D]">{{ format_number($user->student->attendances->where('status', 'Hadir')->count()) }} Hari</span>
+                        </div>
+                    </div>
+                </x-card>
+            @endif
+
+            <!-- Jika user adalah Teacher: Tampilkan Mapel & Kelas yang Diajar -->
+            @if ($user->teacher)
+                <x-card class="space-y-3">
+                    <h3 class="text-sm font-semibold text-ink">Penugasan Mengajar</h3>
+                    <div class="text-xs space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-muted">Kode Guru</span>
+                            <span class="font-semibold text-primary">{{ $user->teacher->teacher_code }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-muted">Mata Pelajaran</span>
+                            <span class="font-semibold text-ink">{{ $user->teacher->subject?->name ?? '-' }}</span>
+                        </div>
+                        <div>
+                            <span class="text-muted block mb-1.5">Kelas yang Diajar</span>
+                            <div class="flex flex-wrap gap-1.5">
+                                @forelse ($user->teacher->schoolClasses as $cls)
+                                    <span class="edudash-keycap">{{ $cls->name }}</span>
+                                @empty
+                                    <span class="text-muted">Belum ditugaskan</span>
+                                @endforelse
+                            </div>
                         </div>
                     </div>
                 </x-card>
@@ -84,6 +111,7 @@
                     <div>
                         <label for="password" class="block text-xs font-medium text-ink mb-1.5">Ganti Kata Sandi (Opsional)</label>
                         <input type="password" id="password" name="password" placeholder="Kosongkan jika tidak diganti…" class="edudash-input" />
+                        @error('password') <p class="text-[11px] font-medium text-error mt-1.5 pl-3">{{ $message }}</p> @enderror
                     </div>
                 </div>
 
@@ -91,6 +119,7 @@
                     <label class="block text-xs font-medium text-ink mb-1.5">Ganti Foto Profil (WebP)</label>
                     <input type="file" name="photo" accept=".jpg,.jpeg,.png,.webp"
                            class="block w-full text-xs text-muted file:mr-3 file:py-1.5 file:px-4 file:rounded-full file:border file:border-primary file:bg-surface file:text-primary file:font-semibold hover:file:bg-primary-soft" />
+                    @error('photo') <p class="text-[11px] font-medium text-error mt-1.5 pl-3">{{ $message }}</p> @enderror
                 </div>
 
                 <div class="pt-4 border-t border-line flex justify-end">

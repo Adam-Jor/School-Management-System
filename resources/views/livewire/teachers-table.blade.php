@@ -120,11 +120,16 @@
                                 </div>
                             </div>
                         </td>
-                        <td class="py-3 px-3 whitespace-nowrap">
+                        <td class="py-3 px-3">
                             @if ($teacher->subject)
                                 <span class="edudash-keycap">{{ $teacher->subject->code }} · {{ $teacher->subject->name }}</span>
                             @else
                                 <span class="text-xs text-muted">–</span>
+                            @endif
+                            @if ($teacher->schoolClasses->isNotEmpty())
+                                <p class="text-[11px] text-muted mt-1">
+                                    Kelas: {{ $teacher->schoolClasses->pluck('name')->implode(', ') }}
+                                </p>
                             @endif
                         </td>
                         <td class="py-3 px-3 font-mono text-xs text-secondary whitespace-nowrap tabular-nums">

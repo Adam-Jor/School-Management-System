@@ -1,7 +1,7 @@
 <x-layouts.app title="Tambah Data Guru" :breadcrumbs="[['label' => 'Data Guru', 'url' => route('teachers.index')], ['label' => 'Tambah Guru']]">
     <x-page-header
         title="Tambah Data Guru"
-        subtitle="Daftarkan guru pengajar baru dan hubungkan ke mata pelajaran (tbl_subjects) serta akun pengguna (tbl_users)." />
+        subtitle="Daftarkan guru pengajar baru serta hubungkan dengan mata pelajaran, kelas yang diajar, dan akun pengguna." />
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         <x-card class="lg:col-span-8 max-w-[720px] w-full">
@@ -11,9 +11,9 @@
                 <div class="bg-sidebar border border-line rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center gap-4">
                     <x-avatar name="Guru Baru" size="lg" />
                     <div class="flex-1">
-                        <p class="text-sm font-semibold text-ink">Foto Profil Guru (public/uploads/teachers/)</p>
+                        <p class="text-sm font-semibold text-ink">Foto Profil Guru</p>
                         <p class="text-xs text-muted mt-0.5">
-                            Format JPG, PNG, atau WEBP · Maksimal 2 MB · Otomatis kompres ke WebP
+                            Format JPG, PNG, atau WEBP · Maksimal 2 MB · Kompres otomatis
                         </p>
                         <input type="file"
                                name="photo"
@@ -28,7 +28,7 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
                         <label for="teacher_code" class="block text-xs font-medium text-ink mb-1.5">
-                            Kode Guru (<code class="text-[11px]">teacher_code</code>) <span class="text-error font-bold">*</span>
+                            Kode Guru <span class="text-error font-bold">*</span>
                         </label>
                         <input type="text"
                                id="teacher_code"
@@ -61,7 +61,7 @@
 
                     <div>
                         <label for="subject_id" class="block text-xs font-medium text-ink mb-1.5">
-                            Mata Pelajaran (<code class="text-[11px]">FK subject_id</code>) <span class="text-error font-bold">*</span>
+                            Mata Pelajaran <span class="text-error font-bold">*</span>
                         </label>
                         <select id="subject_id" name="subject_id" required class="edudash-select">
                             <option value="">Pilih mata pelajaran…</option>
@@ -78,16 +78,19 @@
 
                     <div>
                         <label for="user_id" class="block text-xs font-medium text-ink mb-1.5">
-                            Akun Pengguna (<code class="text-[11px]">FK user_id → tbl_users</code>)
+                            Akun Pengguna Terkait
                         </label>
                         <select id="user_id" name="user_id" class="edudash-select">
-                            <option value="">Buat akun teacher otomatis</option>
+                            <option value="">Buat akun guru otomatis</option>
                             @foreach ($users as $u)
                                 <option value="{{ $u->id }}" @selected(old('user_id') == $u->id)>
                                     {{ $u->email }} ({{ $u->name }})
                                 </option>
                             @endforeach
                         </select>
+                        @error('user_id')
+                            <p class="text-[11px] font-medium text-error mt-1.5 pl-3">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <div>
@@ -115,7 +118,31 @@
                             <option value="Cuti" @selected(old('status') === 'Cuti')>Cuti</option>
                             <option value="Pindah" @selected(old('status') === 'Pindah')>Pindah</option>
                         </select>
+                        @error('status')
+                            <p class="text-[11px] font-medium text-error mt-1.5 pl-3">{{ $message }}</p>
+                        @enderror
                     </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-ink mb-2">
+                        Kelas yang Diajar (Akses Absensi Siswa)
+                    </label>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                        @foreach ($classes as $cls)
+                            <label class="flex items-center gap-2 px-3 py-2 rounded-lg bg-sidebar border border-line text-xs text-ink cursor-pointer hover:bg-raised transition-colors duration-150">
+                                <input type="checkbox"
+                                       name="class_ids[]"
+                                       value="{{ $cls->id }}"
+                                       @checked(in_array($cls->id, (array) old('class_ids', [])))
+                                       class="rounded border-line text-primary focus:ring-primary/20" />
+                                <span class="truncate">{{ $cls->name }}</span>
+                            </label>
+                        @endforeach
+                    </div>
+                    @error('class_ids.*')
+                        <p class="text-[11px] font-medium text-error mt-1.5 pl-3">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 <div>
@@ -127,10 +154,13 @@
                               rows="3"
                               placeholder="Contoh: Wali Kelas 10 IPA 1 · Pembina Olimpiade Matematika…"
                               class="edudash-textarea">{{ old('notes') }}</textarea>
+                    @error('notes')
+                        <p class="text-[11px] font-medium text-error mt-1.5 pl-3">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 <div class="pt-4 border-t border-line flex flex-wrap items-center justify-between gap-3">
-                    <p class="text-xs text-muted">* Field wajib diisi (TeacherRequest Validation)</p>
+                    <p class="text-xs text-muted">* Kolom wajib diisi</p>
                     <div class="flex items-center gap-3">
                         <a href="{{ route('teachers.index') }}" wire:navigate class="edudash-btn-secondary text-sm">Batal</a>
                         <button type="submit" class="edudash-btn-primary text-sm">Simpan</button>
@@ -142,7 +172,7 @@
         <x-card class="lg:col-span-4 space-y-3">
             <h2 class="text-base font-semibold text-ink">Relasi Data Guru</h2>
             <p class="text-xs text-muted leading-relaxed">
-                Data guru disimpan di <code class="text-ink font-medium">tbl_teachers</code> dengan foreign key ke <code class="text-ink font-medium">tbl_subjects</code> dan <code class="text-ink font-medium">tbl_users</code>.
+                Setiap profil guru terhubung dengan mata pelajaran yang diampu, daftar kelas mengajar untuk pencatatan absensi siswa, serta akun login pengajar.
             </p>
         </x-card>
     </div>

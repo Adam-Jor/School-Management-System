@@ -61,7 +61,7 @@ class TeachersTable extends Component
             ->select('tbl_teachers.*')
             ->leftJoin('tbl_subjects', 'tbl_teachers.subject_id', '=', 'tbl_subjects.id')
             ->leftJoin('tbl_users', 'tbl_teachers.user_id', '=', 'tbl_users.id')
-            ->with(['subject', 'user'])
+            ->with(['subject', 'user', 'schoolClasses'])
             ->when(trim($this->search) !== '', function ($q) {
                 $term = '%'.trim($this->search).'%';
                 $q->where(function ($sub) use ($term) {

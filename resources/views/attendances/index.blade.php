@@ -3,19 +3,27 @@
 
     <x-page-header
         title="Absensi Siswa"
-        subtitle="Kelola absensi harian siswa per kelas (tbl_attendances) dan pantau rekapitulasi kehadiran bulanan." />
+        :subtitle="$user->isTeacher()
+            ? 'Kelola absensi harian siswa pada kelas yang sedang Anda ajar dan pantau rekapitulasi kehadiran bulanan.'
+            : ($user->isStudent()
+                ? 'Pantau catatan kehadiran harian dan rekapitulasi absensi pribadi Anda.'
+                : 'Kelola absensi harian siswa per kelas dan pantau rekapitulasi kehadiran bulanan.')" />
 
     <!-- Filter Kelas, Tanggal Harian, & Bulan Rekap -->
     <x-card class="mb-6">
         <form action="{{ route('attendances.index') }}" method="GET" class="grid grid-cols-1 sm:grid-cols-4 gap-4 items-end">
             <div>
-                <label class="block text-xs font-medium text-ink mb-1.5">Pilih Kelas</label>
-                <select name="class_id" onchange="this.form.submit()" class="edudash-select h-10 text-xs">
-                    @foreach ($classes as $cls)
+                <label class="block text-xs font-medium text-ink mb-1.5">
+                    {{ $user->isTeacher() ? 'Kelas yang Anda Ajar' : 'Pilih Kelas' }}
+                </label>
+                <select name="class_id" onchange="this.form.submit()" class="edudash-select h-10 text-xs" @disabled($classes->isEmpty())>
+                    @forelse ($classes as $cls)
                         <option value="{{ $cls->id }}" @selected($selectedClassId === $cls->id)>
                             {{ $cls->name }} ({{ $cls->code }})
                         </option>
-                    @endforeach
+                    @empty
+                        <option value="">Belum ada kelas ditugaskan</option>
+                    @endforelse
                 </select>
             </div>
 
@@ -36,6 +44,14 @@
             </div>
         </form>
     </x-card>
+
+    @if ($errors->any())
+        <div class="mb-6 px-4 py-3 rounded-xl bg-error-soft/40 border border-error/25 text-xs text-error space-y-1">
+            @foreach ($errors->all() as $err)
+                <p>{{ $err }}</p>
+            @endforeach
+        </div>
+    @endif
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         <!-- Kiri (col-span-7): Form Input Absensi Harian per Kelas -->
@@ -69,7 +85,8 @@
                             @forelse ($students as $index => $student)
                                 @php
                                     $rec = $dailyAttendances->get($student->id);
-                                    $currentStatus = $rec?->status ?? 'Hadir';
+                                    $currentStatus = old("statuses.{$student->id}", $rec?->status ?? 'Hadir');
+                                    $currentNotes = old("notes.{$student->id}", $rec?->notes);
                                 @endphp
                                 <tr class="hover:bg-page/50">
                                     <td class="py-3 pl-2 text-right text-xs font-semibold text-muted tabular-nums">
@@ -80,7 +97,7 @@
                                         <p class="text-[11px] text-muted">{{ $student->student_code }}</p>
                                     </td>
                                     <td class="py-3 px-3">
-                                        @if ($user->isAdmin())
+                                        @if ($canRecordAttendance)
                                             <select name="statuses[{{ $student->id }}]" class="h-8 px-3 rounded-lg bg-sidebar border border-line text-xs font-medium text-ink">
                                                 @foreach (['Hadir', 'Izin', 'Sakit', 'Alpa'] as $st)
                                                     <option value="{{ $st }}" @selected($currentStatus === $st)>{{ $st }}</option>
@@ -91,10 +108,10 @@
                                         @endif
                                     </td>
                                     <td class="py-3 pr-2">
-                                        @if ($user->isAdmin())
+                                        @if ($canRecordAttendance)
                                             <input type="text"
                                                    name="notes[{{ $student->id }}]"
-                                                   value="{{ $rec?->notes }}"
+                                                   value="{{ $currentNotes }}"
                                                    placeholder="Catatan opsional…"
                                                    class="h-8 px-3 rounded-lg bg-sidebar border border-line text-xs text-ink w-full" />
                                         @else
@@ -105,7 +122,9 @@
                             @empty
                                 <tr>
                                     <td colspan="4">
-                                        <x-empty-state title="Belum ada siswa di kelas ini" />
+                                        <x-empty-state
+                                            :title="$user->isTeacher() && $classes->isEmpty() ? 'Belum ada penugasan kelas mengajar' : 'Belum ada siswa di kelas ini'"
+                                            :description="$user->isTeacher() && $classes->isEmpty() ? 'Hubungi administrator sekolah untuk menetapkan kelas yang Anda ajar.' : null" />
                                     </td>
                                 </tr>
                             @endforelse
@@ -113,7 +132,7 @@
                     </table>
                 </div>
 
-                @if ($user->isAdmin() && count($students) > 0)
+                @if ($canRecordAttendance && count($students) > 0)
                     <div class="mt-5 pt-4 border-t border-line flex justify-end">
                         <button type="submit" class="edudash-btn-primary text-xs">
                             Simpan Absensi Harian

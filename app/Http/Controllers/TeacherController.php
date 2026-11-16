@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exports\TeachersExport;
+use App\Http\Requests\ExcelImportRequest;
 use App\Http\Requests\TeacherRequest;
 use App\Imports\TeachersImport;
 use App\Models\ActivityLog;
@@ -66,18 +67,21 @@ class TeacherController extends Controller
     public function create(): View
     {
         $subjects = Subject::orderBy('name')->get();
+        $classes = SchoolClass::orderBy('name')->get();
         $users = User::where('role', 'teacher')->orderBy('name')->get();
         $nextNumber = Teacher::withArchived()->count() + 1;
         $nextCode = 'TCH-'.str_pad((string) $nextNumber, 3, '0', STR_PAD_LEFT);
 
-        return view('teachers.add', compact('subjects', 'users', 'nextCode'));
+        return view('teachers.add', compact('subjects', 'classes', 'users', 'nextCode'));
     }
 
     public function store(TeacherRequest $request): RedirectResponse
     {
         $data = $request->validated();
+        $classIds = $data['class_ids'] ?? [];
+        unset($data['class_ids']);
 
-        DB::transaction(function () use ($request, &$data) {
+        DB::transaction(function () use ($request, &$data, $classIds) {
             if (empty($data['user_id'])) {
                 $cleanName = preg_replace('/[,.].*$/', '', $data['name']) ?: $data['name'];
                 $usernameBase = Str::slug($cleanName, '.');
@@ -99,6 +103,7 @@ class TeacherController extends Controller
             }
 
             $teacher = Teacher::create($data);
+            $teacher->schoolClasses()->sync($classIds);
 
             ActivityLog::record(
                 'Data guru baru ditambahkan',
@@ -114,22 +119,26 @@ class TeacherController extends Controller
 
     public function edit(Teacher $teacher): View
     {
-        $teacher->load(['subject', 'user']);
+        $teacher->load(['subject', 'user', 'schoolClasses']);
         $subjects = Subject::orderBy('name')->get();
+        $classes = SchoolClass::orderBy('name')->get();
         $users = User::where('role', 'teacher')->orderBy('name')->get();
 
-        return view('teachers.edit', compact('teacher', 'subjects', 'users'));
+        return view('teachers.edit', compact('teacher', 'subjects', 'classes', 'users'));
     }
 
     public function update(TeacherRequest $request, Teacher $teacher): RedirectResponse
     {
         $data = $request->validated();
+        $classIds = $data['class_ids'] ?? [];
+        unset($data['class_ids']);
 
         if ($request->hasFile('photo')) {
             $data['img_url'] = upload_image($request->file('photo'), 'teachers');
         }
 
         $teacher->update($data);
+        $teacher->schoolClasses()->sync($classIds);
 
         ActivityLog::record(
             'Data guru diperbarui',
@@ -161,12 +170,9 @@ class TeacherController extends Controller
             ->with('toast', 'Data guru '.$teacher->name.' telah dipindahkan ke Archive');
     }
 
-    public function import(Request $request): RedirectResponse
+    public function import(ExcelImportRequest $request): RedirectResponse
     {
-        $request->validate([
-            'excel_file' => ['required_without:csv_file', 'nullable', 'file', 'mimes:xlsx,xls,csv,txt', 'max:4096'],
-            'csv_file' => ['nullable', 'file', 'mimes:xlsx,xls,csv,txt', 'max:4096'],
-        ]);
+        $request->validated();
 
         $uploadedFile = $request->file('excel_file') ?? $request->file('csv_file');
         $importer = new TeachersImport;

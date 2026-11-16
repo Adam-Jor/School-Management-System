@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Traits\Archivable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 use Spatie\Activitylog\LogOptions;
@@ -51,5 +52,11 @@ class SchoolClass extends Model
     public function attendances(): HasMany
     {
         return $this->hasMany(Attendance::class, 'class_id');
+    }
+
+    public function teachers(): BelongsToMany
+    {
+        return $this->belongsToMany(Teacher::class, 'tbl_class_teacher', 'class_id', 'teacher_id')
+            ->withTimestamps();
     }
 }
