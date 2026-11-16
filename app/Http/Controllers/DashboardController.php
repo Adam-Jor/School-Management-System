@@ -51,9 +51,20 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
+        $classesWithCount = SchoolClass::withCount('students')->orderBy('name')->get();
+        $statusCounts = [
+            'Aktif' => Student::where('status', 'Aktif')->count(),
+            'Pindah' => Student::where('status', 'Pindah')->count(),
+            'Menunggu' => Student::where('status', 'Menunggu')->count(),
+        ];
+
         $chartData = [
             'labels' => ['Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des', 'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun'],
             'values' => [845, 868, 892, 920, 945, 972, 1012, 1042, 1058, 1074, 1090, 1105],
+            'class_labels' => $classesWithCount->pluck('name')->values()->all(),
+            'class_values' => $classesWithCount->pluck('students_count')->values()->all(),
+            'status_labels' => array_keys($statusCounts),
+            'status_values' => array_values($statusCounts),
         ];
 
         $globalResults = null;

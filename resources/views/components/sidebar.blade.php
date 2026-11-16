@@ -121,6 +121,31 @@
                     </a>
                 </li>
 
+                <!-- Fitur Tambahan PRD 7.2: Absensi & Nilai/Rapor -->
+                <li class="pt-2">
+                    <p class="px-3 mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted">Akademik & Laporan</p>
+                </li>
+
+                <li>
+                    <a href="{{ route('attendances.index') }}" wire:navigate
+                       class="flex items-center justify-between px-4 py-2.5 rounded-full text-sm transition duration-150 {{ request()->routeIs('attendances.*') ? 'bg-primary-soft text-ink font-semibold' : 'text-muted font-medium hover:bg-primary-soft/60 hover:text-ink' }}">
+                        <span class="flex items-center gap-3">
+                            <x-heroicon-o-calendar-days class="size-5 {{ request()->routeIs('attendances.*') ? 'text-primary' : 'text-muted' }}" />
+                            <span>Absensi Siswa</span>
+                        </span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="{{ route('grades.index') }}" wire:navigate
+                       class="flex items-center justify-between px-4 py-2.5 rounded-full text-sm transition duration-150 {{ request()->routeIs('grades.*') ? 'bg-primary-soft text-ink font-semibold' : 'text-muted font-medium hover:bg-primary-soft/60 hover:text-ink' }}">
+                        <span class="flex items-center gap-3">
+                            <x-heroicon-o-document-text class="size-5 {{ request()->routeIs('grades.*') ? 'text-primary' : 'text-muted' }}" />
+                            <span>Nilai & Rapor</span>
+                        </span>
+                    </a>
+                </li>
+
                 @if ($user?->isAdmin())
                     <li>
                         <a href="{{ route('archive.index') }}" wire:navigate

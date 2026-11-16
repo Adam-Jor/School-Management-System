@@ -88,21 +88,26 @@
 
     <!-- Row Tengah: Chart (col-span-8) & Kartu Promo (col-span-4) -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
-        <!-- Kartu Chart (design.md 4.5) -->
+        <!-- Kartu Chart (design.md 4.5 + PRD 7.2: Grafik pertumbuhan, per kelas, & per status) -->
         <x-card class="lg:col-span-8 flex flex-col justify-between">
             <div>
                 <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
                     <div>
-                        <h2 class="text-base font-semibold text-ink">Pertumbuhan Siswa</h2>
-                        <p class="text-xs text-muted mt-0.5">Siswa aktif · Bulanan</p>
+                        <h2 class="text-base font-semibold text-ink">Statistik & Pertumbuhan Siswa</h2>
+                        <p class="text-xs text-muted mt-0.5">Grafik tren bulanan, jumlah siswa per kelas, dan status</p>
                     </div>
-                    <span class="px-4 py-1.5 rounded-full bg-sidebar border border-line text-xs font-medium text-ink">
-                        Satu tahun ajaran ▾
-                    </span>
+                    <select id="chartModeSelector"
+                            onchange="window.switchEdudashChartMode(this.value)"
+                            aria-label="Pilih mode grafik siswa"
+                            class="h-9 px-4 rounded-full bg-sidebar border border-line text-xs font-medium text-ink focus:border-primary focus:outline-none">
+                        <option value="growth">Satu tahun ajaran (Bulanan)</option>
+                        <option value="class">Jumlah Siswa per Kelas</option>
+                        <option value="status">Jumlah Siswa per Status</option>
+                    </select>
                 </div>
 
                 <div class="h-[240px] w-full relative">
-                    <canvas id="studentGrowthChart" aria-label="Grafik pertumbuhan siswa bulanan" role="img"></canvas>
+                    <canvas id="studentGrowthChart" aria-label="Grafik statistik siswa" role="img"></canvas>
                 </div>
             </div>
 
@@ -118,15 +123,15 @@
                     <table class="table table-xs w-full text-xs">
                         <thead>
                             <tr class="text-muted border-b border-line">
-                                @foreach ($chartData['labels'] as $lbl)
+                                @foreach ($chartData['class_labels'] as $lbl)
                                     <th class="text-right font-medium">{{ $lbl }}</th>
                                 @endforeach
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                @foreach ($chartData['values'] as $val)
-                                    <td class="text-right font-semibold text-ink">{{ format_number($val) }}</td>
+                                @foreach ($chartData['class_values'] as $val)
+                                    <td class="text-right font-semibold text-ink">{{ format_number($val) }} Siswa</td>
                                 @endforeach
                             </tr>
                         </tbody>
@@ -345,10 +350,9 @@
     @push('scripts')
         <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
         <script>
-            document.addEventListener('DOMContentLoaded', renderEdudashChart);
-            document.addEventListener('livewire:navigated', renderEdudashChart);
+            window.edudashChartPayload = @json($chartData);
 
-            function renderEdudashChart() {
+            window.switchEdudashChartMode = function (mode) {
                 const canvas = document.getElementById('studentGrowthChart');
                 if (!canvas || typeof Chart === 'undefined') return;
 
@@ -358,26 +362,44 @@
 
                 const ctx = canvas.getContext('2d');
                 const gradient = ctx.createLinearGradient(0, 0, 0, 220);
-                gradient.addColorStop(0, 'rgba(109, 91, 232, 0.22)');
+                gradient.addColorStop(0, 'rgba(109, 91, 232, 0.24)');
                 gradient.addColorStop(1, 'rgba(109, 91, 232, 0.01)');
 
+                let type = 'line';
+                let labels = window.edudashChartPayload.labels;
+                let data = window.edudashChartPayload.values;
+                let bg = gradient;
+                let border = '#161B33';
+
+                if (mode === 'class') {
+                    type = 'bar';
+                    labels = window.edudashChartPayload.class_labels;
+                    data = window.edudashChartPayload.class_values;
+                    bg = '#6D5BE8';
+                    border = '#6D5BE8';
+                } else if (mode === 'status') {
+                    type = 'bar';
+                    labels = window.edudashChartPayload.status_labels;
+                    data = window.edudashChartPayload.status_values;
+                    bg = ['#22C55E', '#EF4444', '#F59E0B'];
+                    border = ['#22C55E', '#EF4444', '#F59E0B'];
+                }
+
                 canvas._chartInstance = new Chart(ctx, {
-                    type: 'line',
+                    type: type,
                     data: {
-                        labels: @json($chartData['labels']),
+                        labels: labels,
                         datasets: [{
-                            label: 'Siswa Aktif',
-                            data: @json($chartData['values']),
-                            borderColor: '#161B33',
-                            borderWidth: 2.5,
-                            backgroundColor: gradient,
-                            fill: true,
+                            label: 'Jumlah Siswa',
+                            data: data,
+                            borderColor: border,
+                            borderWidth: type === 'line' ? 2.5 : 0,
+                            borderRadius: type === 'bar' ? 999 : 0,
+                            backgroundColor: bg,
+                            fill: type === 'line',
                             tension: 0.4,
                             pointRadius: 0,
                             pointHoverRadius: 6,
-                            pointHoverBackgroundColor: '#6D5BE8',
-                            pointHoverBorderColor: '#FFFFFF',
-                            pointHoverBorderWidth: 2,
                         }]
                     },
                     options: {
@@ -387,27 +409,21 @@
                             legend: { display: false },
                             tooltip: {
                                 backgroundColor: '#161B33',
-                                titleFont: { family: 'Poppins', size: 11, weight: '600' },
-                                bodyFont: { family: 'Poppins', size: 11 },
                                 padding: 10,
                                 cornerRadius: 999,
                                 displayColors: false,
                             }
                         },
                         scales: {
-                            x: {
-                                grid: { display: false },
-                                ticks: { color: '#6B7085', font: { family: 'Poppins', size: 11 } }
-                            },
-                            y: {
-                                border: { display: false, dash: [4, 4] },
-                                grid: { color: '#E3E6F6' },
-                                ticks: { color: '#6B7085', font: { family: 'Poppins', size: 11 } }
-                            }
+                            x: { grid: { display: false }, ticks: { color: '#6B7085', font: { family: 'Poppins', size: 11 } } },
+                            y: { border: { display: false, dash: [4, 4] }, grid: { color: '#E3E6F6' }, ticks: { color: '#6B7085', font: { family: 'Poppins', size: 11 } } }
                         }
                     }
                 });
-            }
+            };
+
+            document.addEventListener('DOMContentLoaded', () => window.switchEdudashChartMode('growth'));
+            document.addEventListener('livewire:navigated', () => window.switchEdudashChartMode('growth'));
         </script>
     @endpush
 </x-layouts.app>

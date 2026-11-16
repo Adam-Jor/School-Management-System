@@ -1,9 +1,11 @@
 <?php
 
 use App\Http\Controllers\ArchiveController;
+use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClassController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\GradeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\SubjectController;
@@ -33,6 +35,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/teachers', [TeacherController::class, 'index'])->name('teachers.index');
     Route::get('/classes', [ClassController::class, 'index'])->name('classes.index');
     Route::get('/subjects', [SubjectController::class, 'index'])->name('subjects.index');
+    Route::get('/attendances', [AttendanceController::class, 'index'])->name('attendances.index');
+    Route::get('/grades', [GradeController::class, 'index'])->name('grades.index');
+    Route::get('/grades/report/{student:slug}/pdf', [GradeController::class, 'reportPdf'])->name('grades.report.pdf');
 
     // Admin-only CRUD Routes (Create, Store, Edit, Update, Archive, Restore, Users)
     Route::middleware('role:admin')->group(function () {
@@ -47,6 +52,7 @@ Route::middleware('auth')->group(function () {
         // Teachers CRUD
         Route::get('/teachers/add', [TeacherController::class, 'create'])->name('teachers.create');
         Route::post('/teachers', [TeacherController::class, 'store'])->name('teachers.store');
+        Route::post('/teachers/import', [TeacherController::class, 'import'])->name('teachers.import');
         Route::get('/teachers/{teacher:slug}/edit', [TeacherController::class, 'edit'])->name('teachers.edit');
         Route::put('/teachers/{teacher:slug}', [TeacherController::class, 'update'])->name('teachers.update');
         Route::patch('/teachers/{teacher:slug}/archive', [TeacherController::class, 'archive'])->name('teachers.archive');
@@ -64,6 +70,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/subjects/{subject:slug}/edit', [SubjectController::class, 'edit'])->name('subjects.edit');
         Route::put('/subjects/{subject:slug}', [SubjectController::class, 'update'])->name('subjects.update');
         Route::patch('/subjects/{subject:slug}/archive', [SubjectController::class, 'archive'])->name('subjects.archive');
+
+        // Attendances & Grades Write Routes
+        Route::post('/attendances', [AttendanceController::class, 'store'])->name('attendances.store');
+        Route::post('/grades', [GradeController::class, 'store'])->name('grades.store');
 
         // Users CRUD
         Route::get('/users', [UserController::class, 'index'])->name('users.index');

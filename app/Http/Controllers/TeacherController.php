@@ -8,8 +8,10 @@ use App\Models\SchoolClass;
 use App\Models\Subject;
 use App\Models\Teacher;
 use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -18,7 +20,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class TeacherController extends Controller
 {
-    public function index(Request $request): View|StreamedResponse
+    public function index(Request $request): View|StreamedResponse|Response
     {
         $search = trim((string) $request->query('q', ''));
         $subjectId = $request->query('subject_id', '');
@@ -67,6 +69,15 @@ class TeacherController extends Controller
                 }
                 fclose($out);
             }, 'data-guru-'.now()->format('YmdHis').'.csv');
+        }
+
+        if ($request->query('export') === 'pdf') {
+            $rows = $query->get();
+            ActivityLog::record('Ekspor laporan PDF guru', 'teachers', count($rows).' data guru', 'muted');
+
+            $pdf = Pdf::loadView('teachers.pdf', ['teachers' => $rows]);
+
+            return $pdf->download('laporan-data-guru-'.now()->format('YmdHis').'.pdf');
         }
 
         $teachers = $query->paginate(8)->withQueryString();
@@ -186,5 +197,49 @@ class TeacherController extends Controller
 
         return redirect()->route('teachers.index')
             ->with('toast', 'Data guru '.$teacher->name.' telah dipindahkan ke Archive.');
+    }
+
+    public function import(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'csv_file' => ['required', 'file', 'mimes:csv,txt', 'max:2048'],
+        ]);
+
+        $file = $request->file('csv_file');
+        $handle = fopen($file->getRealPath(), 'r');
+        $defaultSubject = Subject::first();
+        $imported = 0;
+        $rowNum = 0;
+
+        while (($row = fgetcsv($handle, 1000, ',')) !== false) {
+            $rowNum++;
+            if ($rowNum === 1 && stripos($row[0] ?? '', 'kode') !== false) {
+                continue;
+            }
+            $code = trim($row[0] ?? '');
+            $name = trim($row[1] ?? '');
+            $phone = trim($row[2] ?? '081200000000');
+            if ($code === '' || $name === '') {
+                continue;
+            }
+            if (Teacher::withArchived()->where('teacher_code', $code)->exists()) {
+                continue;
+            }
+
+            Teacher::create([
+                'teacher_code' => $code,
+                'name' => $name,
+                'phone' => $phone,
+                'subject_id' => $defaultSubject?->id,
+                'status' => 'Aktif',
+            ]);
+            $imported++;
+        }
+        fclose($handle);
+
+        ActivityLog::record('Import CSV data guru', 'teachers', "{$imported} guru berhasil diimpor", 'success');
+
+        return redirect()->route('teachers.index')
+            ->with('toast', "Berhasil mengimpor {$imported} data guru baru.");
     }
 }
