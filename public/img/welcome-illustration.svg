@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 160" fill="none">
+  <rect width="360" height="160" rx="16" fill="#E1F2FE"/>
+  <circle cx="310" cy="24" r="64" fill="#FFFFFF" fill-opacity="0.55"/>
+  <circle cx="36" cy="138" r="54" fill="#6D5BE8" fill-opacity="0.12"/>
+  <g filter="url(#cardShadow)">
+    <rect x="52" y="24" width="256" height="112" rx="14" fill="#FFFFFF"/>
+  </g>
+  <circle cx="92" cy="60" r="22" fill="#EDEBFF"/>
+  <path d="M92 49L79 55.5L92 62L105 55.5L92 49Z" fill="#6D5BE8"/>
+  <path d="M83 59V65.5C83 68 87 70 92 70C97 70 101 68 101 65.5V59" stroke="#6D5BE8" stroke-width="2" stroke-linecap="round"/>
+  <rect x="126" y="46" width="124" height="10" rx="5" fill="#161B33"/>
+  <rect x="126" y="64" width="84" height="8" rx="4" fill="#E3E6F6"/>
+  <rect x="70" y="96" width="126" height="24" rx="12" fill="#DCFCE7"/>
+  <circle cx="84" cy="108" r="4" fill="#22C55E"/>
+  <text x="94" y="112" fill="#15803D" font-family="Poppins, sans-serif" font-size="10" font-weight="600">Gelombang 1 Aktif</text>
+  <rect x="206" y="96" width="82" height="24" rx="12" fill="#6D5BE8"/>
+  <text x="220" y="112" fill="#FFFFFF" font-family="Poppins, sans-serif" font-size="10" font-weight="600">+24 Siswa</text>
+  <defs>
+    <filter id="cardShadow" x="38" y="14" width="284" height="140" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+      <feOffset dy="4"/>
+      <feGaussianBlur stdDeviation="7"/>
+      <feComposite in2="hardAlpha" operator="out"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.086 0 0 0 0 0.106 0 0 0 0 0.2 0 0 0 0.08 0"/>
+      <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow" result="shape"/>
+    </filter>
+  </defs>
+</svg>
