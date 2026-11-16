@@ -60,14 +60,14 @@
         <x-card class="{{ $user->isAdmin() ? 'lg:col-span-8' : 'lg:col-span-12' }}">
             <form action="{{ route('grades.index') }}" method="GET" class="flex flex-wrap items-center justify-between gap-3 mb-5">
                 <div class="flex flex-wrap items-center gap-3">
-                    <select name="class_id" onchange="this.form.submit()" class="h-9 px-4 rounded-full bg-sidebar border border-line text-xs font-medium text-ink">
+                    <select name="class_id" onchange="this.form.submit()" class="h-9 px-4 rounded-lg bg-sidebar border border-line text-xs font-medium text-ink">
                         <option value="">Semua Kelas</option>
                         @foreach ($classes as $cls)
                             <option value="{{ $cls->id }}" @selected((string) $classId === (string) $cls->id)>{{ $cls->name }}</option>
                         @endforeach
                     </select>
 
-                    <select name="subject_id" onchange="this.form.submit()" class="h-9 px-4 rounded-full bg-sidebar border border-line text-xs font-medium text-ink">
+                    <select name="subject_id" onchange="this.form.submit()" class="h-9 px-4 rounded-lg bg-sidebar border border-line text-xs font-medium text-ink">
                         <option value="">Semua Mata Pelajaran</option>
                         @foreach ($subjects as $sub)
                             <option value="{{ $sub->id }}" @selected((string) $subjectId === (string) $sub->id)>{{ $sub->name }}</option>
@@ -75,7 +75,7 @@
                     </select>
                 </div>
 
-                <span class="px-3.5 py-1 rounded-full bg-primary-soft text-primary text-xs font-semibold">
+                <span class="px-3.5 py-1 rounded-md bg-raised border border-line font-mono text-secondary text-xs font-semibold">
                     Total: {{ format_number($grades->total()) }} Data Nilai
                 </span>
             </form>
@@ -118,7 +118,7 @@
                                 <td class="py-3.5 pr-2 text-right whitespace-nowrap">
                                     @if ($grade->student)
                                         <a href="{{ route('grades.report.pdf', $grade->student) }}"
-                                           class="px-3.5 py-1.5 rounded-full bg-primary-soft text-primary text-xs font-semibold hover:bg-primary hover:text-white transition inline-flex items-center gap-1.5">
+                                           class="px-3.5 py-1.5 rounded-md bg-raised border border-line font-mono text-secondary text-xs font-semibold hover:bg-primary hover:text-white transition inline-flex items-center gap-1.5">
                                             <x-heroicon-o-document-arrow-down class="size-3.5" />
                                             <span>Rapor PDF</span>
                                         </a>

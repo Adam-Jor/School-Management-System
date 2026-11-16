@@ -14,19 +14,19 @@
                            name="q"
                            value="{{ $search }}"
                            placeholder="Cari nama, username, atau email…"
-                           class="w-full h-10 pl-10 pr-4 rounded-full bg-sidebar border border-line text-xs text-ink placeholder:text-muted focus:border-primary focus:outline-none" />
+                           class="w-full h-10 pl-10 pr-4 rounded-lg bg-sidebar border border-line text-xs text-ink placeholder:text-muted focus:border-primary focus:outline-none" />
                 </div>
 
                 <select name="role"
                         onchange="this.form.submit()"
-                        class="h-10 px-4 rounded-full bg-sidebar border border-line text-xs font-medium text-ink focus:border-primary focus:outline-none">
+                        class="h-10 px-4 rounded-lg bg-sidebar border border-line text-xs font-medium text-ink focus:border-primary focus:outline-none">
                     <option value="">Semua Role</option>
                     <option value="admin" @selected($role === 'admin')>Admin</option>
                     <option value="teacher" @selected($role === 'teacher')>Teacher</option>
                     <option value="student" @selected($role === 'student')>Student</option>
                 </select>
             </div>
-            <span class="px-4 py-1.5 rounded-full bg-primary-soft text-primary text-xs font-semibold">
+            <span class="px-4 py-1.5 rounded-md bg-raised border border-line font-mono text-secondary text-xs font-semibold">
                 Total: {{ format_number($users->total()) }} Pengguna
             </span>
         </form>
@@ -61,7 +61,7 @@
                             </td>
                             <td class="py-3.5 px-3 text-xs font-mono text-muted">{{ $u->username }}</td>
                             <td class="py-3.5 px-3">
-                                <span class="px-3 py-1 rounded-full bg-primary-soft text-primary text-[11px] font-semibold uppercase">
+                                <span class="px-3 py-1 rounded-md bg-raised border border-line font-mono text-secondary text-[11px] font-semibold uppercase">
                                     {{ $u->role }}
                                 </span>
                             </td>
@@ -74,7 +74,7 @@
                             <td class="py-3.5 pr-2 text-right whitespace-nowrap">
                                 <div class="inline-flex items-center gap-1.5">
                                     <a href="{{ route('users.edit', $u) }}" wire:navigate
-                                       class="px-3 py-1 rounded-full bg-primary-soft text-primary text-[11px] font-semibold hover:bg-primary hover:text-white transition">
+                                       class="px-3 py-1 rounded-md bg-raised border border-line font-mono text-secondary text-[11px] font-semibold hover:bg-primary hover:text-white transition">
                                         Edit
                                     </a>
                                     @if ($u->id !== auth()->id())

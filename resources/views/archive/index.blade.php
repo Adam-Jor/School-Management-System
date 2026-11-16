@@ -65,7 +65,7 @@
                                     @method('PATCH')
                                     <button type="submit"
                                             class="px-4 py-1.5 rounded-full bg-success-soft text-[#15803D] text-xs font-semibold hover:bg-success hover:text-white transition">
-                                        ↺ Restore Data
+                                        Restore Data
                                     </button>
                                 </form>
                             </td>

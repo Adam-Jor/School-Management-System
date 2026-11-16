@@ -45,7 +45,7 @@
                     <h2 class="text-base font-semibold text-ink">Absensi Harian Kelas</h2>
                     <p class="text-xs text-muted mt-0.5">Tanggal: {{ format_date($selectedDate) }} · Total {{ format_number(count($students)) }} Siswa</p>
                 </div>
-                <span class="px-3 py-1 rounded-full bg-primary-soft text-primary text-xs font-semibold">
+                <span class="px-3 py-1 rounded-md bg-raised border border-line font-mono text-secondary text-xs font-semibold">
                     {{ $classes->firstWhere('id', $selectedClassId)?->name ?? '-' }}
                 </span>
             </div>
@@ -81,7 +81,7 @@
                                     </td>
                                     <td class="py-3 px-3">
                                         @if ($user->isAdmin())
-                                            <select name="statuses[{{ $student->id }}]" class="h-8 px-3 rounded-full bg-sidebar border border-line text-xs font-medium text-ink">
+                                            <select name="statuses[{{ $student->id }}]" class="h-8 px-3 rounded-lg bg-sidebar border border-line text-xs font-medium text-ink">
                                                 @foreach (['Hadir', 'Izin', 'Sakit', 'Alpa'] as $st)
                                                     <option value="{{ $st }}" @selected($currentStatus === $st)>{{ $st }}</option>
                                                 @endforeach
@@ -96,7 +96,7 @@
                                                    name="notes[{{ $student->id }}]"
                                                    value="{{ $rec?->notes }}"
                                                    placeholder="Catatan opsional…"
-                                                   class="h-8 px-3 rounded-full bg-sidebar border border-line text-xs text-ink w-full" />
+                                                   class="h-8 px-3 rounded-lg bg-sidebar border border-line text-xs text-ink w-full" />
                                         @else
                                             <span class="text-xs text-muted">{{ $rec?->notes ?: '–' }}</span>
                                         @endif

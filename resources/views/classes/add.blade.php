@@ -11,7 +11,7 @@
                     </label>
                     <input type="text" id="code" name="code" value="{{ old('code', $nextCode) }}" placeholder="Contoh: CLS-10A3" autofocus required
                            class="edudash-input {{ $errors->has('code') ? 'border-error bg-error-soft/30' : '' }}" />
-                    @error('code') <p class="text-[11px] font-medium text-error mt-1.5 pl-3">⚠ {{ $message }}</p> @enderror
+                    @error('code') <p class="text-[11px] font-medium text-error mt-1.5 pl-3">{{ $message }}</p> @enderror
                 </div>
 
                 <div>
@@ -20,7 +20,7 @@
                     </label>
                     <input type="text" id="name" name="name" value="{{ old('name') }}" placeholder="Contoh: 10 IPA 3" required
                            class="edudash-input {{ $errors->has('name') ? 'border-error bg-error-soft/30' : '' }}" />
-                    @error('name') <p class="text-[11px] font-medium text-error mt-1.5 pl-3">⚠ {{ $message }}</p> @enderror
+                    @error('name') <p class="text-[11px] font-medium text-error mt-1.5 pl-3">{{ $message }}</p> @enderror
                 </div>
 
                 <div>
@@ -29,7 +29,7 @@
                     </label>
                     <input type="number" id="capacity" name="capacity" value="{{ old('capacity', 36) }}" min="10" max="60" required
                            class="edudash-input" />
-                    @error('capacity') <p class="text-[11px] font-medium text-error mt-1.5 pl-3">⚠ {{ $message }}</p> @enderror
+                    @error('capacity') <p class="text-[11px] font-medium text-error mt-1.5 pl-3">{{ $message }}</p> @enderror
                 </div>
             </div>
 

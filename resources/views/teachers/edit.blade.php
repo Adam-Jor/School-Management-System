@@ -19,7 +19,7 @@
                                accept=".jpg,.jpeg,.png,.webp"
                                class="mt-2.5 block w-full text-xs text-muted file:mr-3 file:py-1.5 file:px-4 file:rounded-full file:border file:border-primary file:bg-surface file:text-primary file:font-semibold hover:file:bg-primary-soft" />
                         @error('photo')
-                            <p class="text-[11px] font-medium text-error mt-1">⚠ {{ $message }}</p>
+                            <p class="text-[11px] font-medium text-error mt-1">{{ $message }}</p>
                         @enderror
                     </div>
                 </div>
@@ -37,7 +37,7 @@
                                required
                                class="edudash-input {{ $errors->has('teacher_code') ? 'border-error bg-error-soft/30' : '' }}" />
                         @error('teacher_code')
-                            <p class="text-[11px] font-medium text-error mt-1.5 pl-3">⚠ {{ $message }}</p>
+                            <p class="text-[11px] font-medium text-error mt-1.5 pl-3">{{ $message }}</p>
                         @enderror
                     </div>
 
@@ -52,7 +52,7 @@
                                required
                                class="edudash-input {{ $errors->has('name') ? 'border-error bg-error-soft/30' : '' }}" />
                         @error('name')
-                            <p class="text-[11px] font-medium text-error mt-1.5 pl-3">⚠ {{ $message }}</p>
+                            <p class="text-[11px] font-medium text-error mt-1.5 pl-3">{{ $message }}</p>
                         @enderror
                     </div>
 
@@ -94,7 +94,7 @@
                                required
                                class="edudash-input {{ $errors->has('phone') ? 'border-error bg-error-soft/30' : '' }}" />
                         @error('phone')
-                            <p class="text-[11px] font-medium text-error mt-1.5 pl-3">⚠ {{ $message }}</p>
+                            <p class="text-[11px] font-medium text-error mt-1.5 pl-3">{{ $message }}</p>
                         @enderror
                     </div>
 
@@ -103,9 +103,9 @@
                             Status Mengajar <span class="text-error font-bold">*</span>
                         </label>
                         <select id="status" name="status" required class="edudash-select">
-                            <option value="Aktif" @selected(old('status', $teacher->status) === 'Aktif')>● Aktif</option>
-                            <option value="Cuti" @selected(old('status', $teacher->status) === 'Cuti')>● Cuti</option>
-                            <option value="Pindah" @selected(old('status', $teacher->status) === 'Pindah')>● Pindah</option>
+                            <option value="Aktif" @selected(old('status', $teacher->status) === 'Aktif')>Aktif</option>
+                            <option value="Cuti" @selected(old('status', $teacher->status) === 'Cuti')>Cuti</option>
+                            <option value="Pindah" @selected(old('status', $teacher->status) === 'Pindah')>Pindah</option>
                         </select>
                     </div>
                 </div>
@@ -129,7 +129,7 @@
                     <button type="button"
                             @click="openArchiveModal('{{ route('teachers.archive', $teacher) }}', '{{ addslashes($teacher->name) }}', '{{ $teacher->teacher_code }}')"
                             class="px-4 py-2 rounded-full bg-error-soft border border-error text-[#B91C1C] text-xs font-semibold hover:bg-error hover:text-white transition">
-                        🗄 Archive Guru
+                        Archive Guru
                     </button>
                 </div>
 

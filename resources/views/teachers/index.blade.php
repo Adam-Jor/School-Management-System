@@ -31,7 +31,7 @@
                 </a>
                 @if ($user->isAdmin())
                     <a href="{{ route('archive.index', ['tab' => 'teachers']) }}" wire:navigate
-                       class="px-4 py-2.5 rounded-full bg-primary-soft text-primary font-semibold text-xs inline-flex items-center gap-1.5 hover:bg-primary hover:text-white transition">
+                       class="px-4 py-2.5 rounded-md bg-raised border border-line font-mono text-secondary font-semibold text-xs inline-flex items-center gap-1.5 hover:bg-primary hover:text-white transition">
                         <x-heroicon-o-archive-box class="size-4" />
                         <span>Archive ({{ format_number($stats['archived']) }})</span>
                     </a>
@@ -60,13 +60,13 @@
                                value="{{ $search }}"
                                placeholder="Cari nama guru, telepon, atau mapel…"
                                aria-label="Cari data guru"
-                               class="w-full h-10 pl-10 pr-4 rounded-full bg-sidebar border border-primary/50 text-xs text-ink placeholder:text-muted focus:border-primary focus:outline-none" />
+                               class="w-full h-10 pl-10 pr-4 rounded-lg bg-sidebar border border-primary/50 text-xs text-ink placeholder:text-muted focus:border-primary focus:outline-none" />
                     </div>
 
                     <select name="subject_id"
                             onchange="this.form.submit()"
                             aria-label="Filter mata pelajaran"
-                            class="h-10 px-4 rounded-full bg-sidebar border border-line text-xs font-medium text-ink focus:border-primary focus:outline-none">
+                            class="h-10 px-4 rounded-lg bg-sidebar border border-line text-xs font-medium text-ink focus:border-primary focus:outline-none">
                         <option value="">Semua Mapel ({{ format_number(count($subjects)) }})</option>
                         @foreach ($subjects as $sub)
                             <option value="{{ $sub->id }}" @selected((string) $subjectId === (string) $sub->id)>
@@ -78,7 +78,7 @@
                     <select name="status"
                             onchange="this.form.submit()"
                             aria-label="Filter status guru"
-                            class="h-10 px-4 rounded-full bg-sidebar border border-line text-xs font-medium text-ink focus:border-primary focus:outline-none">
+                            class="h-10 px-4 rounded-lg bg-sidebar border border-line text-xs font-medium text-ink focus:border-primary focus:outline-none">
                         <option value="">Semua Status</option>
                         <option value="Aktif" @selected($status === 'Aktif')>Aktif</option>
                         <option value="Cuti" @selected($status === 'Cuti')>Cuti</option>
@@ -88,13 +88,13 @@
                     <select name="sort"
                             onchange="this.form.submit()"
                             aria-label="Urutkan data guru"
-                            class="h-10 px-4 rounded-full bg-sidebar border border-line text-xs font-medium text-muted focus:border-primary focus:outline-none">
+                            class="h-10 px-4 rounded-lg bg-sidebar border border-line text-xs font-medium text-muted focus:border-primary focus:outline-none">
                         <option value="name_asc" @selected($sort === 'name_asc')>Urutkan: Nama A–Z</option>
                         <option value="latest" @selected($sort === 'latest')>Urutkan: Terbaru</option>
                     </select>
                 </div>
 
-                <span class="px-4 py-1.5 rounded-full bg-primary-soft text-primary text-xs font-semibold">
+                <span class="px-4 py-1.5 rounded-md bg-raised border border-line font-mono text-secondary text-xs font-semibold">
                     Total: {{ format_number($teachers->total()) }} Guru
                 </span>
             </form>
@@ -137,7 +137,7 @@
                                 </td>
                                 <td class="py-3.5 px-3 whitespace-nowrap">
                                     @if ($teacher->subject)
-                                        <span class="px-3 py-1 rounded-full bg-primary-soft text-primary text-[11px] font-semibold">
+                                        <span class="px-3 py-1 rounded-md bg-raised border border-line font-mono text-secondary text-[11px] font-semibold">
                                             {{ $teacher->subject->code }} · {{ $teacher->subject->name }}
                                         </span>
                                     @else
@@ -157,7 +157,7 @@
                                     <td class="py-3.5 pr-2 text-right whitespace-nowrap">
                                         <div class="inline-flex items-center gap-1.5">
                                             <a href="{{ route('teachers.edit', $teacher) }}" wire:navigate
-                                               class="px-3 py-1 rounded-full bg-primary-soft text-primary text-[11px] font-semibold hover:bg-primary hover:text-white transition">
+                                               class="px-3 py-1 rounded-md bg-raised border border-line font-mono text-secondary text-[11px] font-semibold hover:bg-primary hover:text-white transition">
                                                 Edit
                                             </a>
                                             <button type="button"

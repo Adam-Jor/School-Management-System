@@ -12,17 +12,14 @@
     };
 @endphp
 
-<div class="px-5 py-2 first:pl-2 last:pr-2">
-    <p class="text-[13px] font-normal text-muted">{{ $label }}</p>
-    <p class="text-[32px] lg:text-[34px] font-bold tracking-tight text-ink leading-tight mt-1">
+<div class="px-5 py-1 first:pl-1 last:pr-1">
+    <p class="text-xs font-normal text-muted">{{ $label }}</p>
+    <p class="text-[28px] lg:text-[32px] font-medium text-ink leading-none mt-2 tabular-nums">
         {{ format_number($value) }}
     </p>
     @if ($delta)
-        <p class="text-xs font-medium {{ $deltaColor }} flex items-center gap-1 mt-1.5">
-            @if ($deltaType !== 'muted')
-                <x-heroicon-o-arrow-trending-up class="size-3.5" />
-            @endif
-            <span>{{ $delta }}</span>
+        <p class="text-xs font-normal {{ $deltaColor }} mt-2 tabular-nums">
+            {{ $delta }}
         </p>
     @endif
 </div>

@@ -9,25 +9,25 @@
                 <div>
                     <label for="name" class="block text-xs font-medium text-ink mb-1.5">Nama Lengkap <span class="text-error font-bold">*</span></label>
                     <input type="text" id="name" name="name" value="{{ old('name') }}" placeholder="Masukkan nama lengkap…" autofocus required class="edudash-input" />
-                    @error('name') <p class="text-[11px] font-medium text-error mt-1.5 pl-3">⚠ {{ $message }}</p> @enderror
+                    @error('name') <p class="text-[11px] font-medium text-error mt-1.5 pl-3">{{ $message }}</p> @enderror
                 </div>
 
                 <div>
                     <label for="username" class="block text-xs font-medium text-ink mb-1.5">Username <span class="text-error font-bold">*</span></label>
                     <input type="text" id="username" name="username" value="{{ old('username') }}" placeholder="Contoh: budi.santoso" required class="edudash-input" />
-                    @error('username') <p class="text-[11px] font-medium text-error mt-1.5 pl-3">⚠ {{ $message }}</p> @enderror
+                    @error('username') <p class="text-[11px] font-medium text-error mt-1.5 pl-3">{{ $message }}</p> @enderror
                 </div>
 
                 <div>
                     <label for="email" class="block text-xs font-medium text-ink mb-1.5">Alamat Email <span class="text-error font-bold">*</span></label>
                     <input type="email" id="email" name="email" value="{{ old('email') }}" placeholder="Contoh: nama@sch.id" required class="edudash-input" />
-                    @error('email') <p class="text-[11px] font-medium text-error mt-1.5 pl-3">⚠ {{ $message }}</p> @enderror
+                    @error('email') <p class="text-[11px] font-medium text-error mt-1.5 pl-3">{{ $message }}</p> @enderror
                 </div>
 
                 <div>
                     <label for="password" class="block text-xs font-medium text-ink mb-1.5">Kata Sandi <span class="text-error font-bold">*</span></label>
                     <input type="password" id="password" name="password" placeholder="Minimal 6 karakter…" required class="edudash-input" />
-                    @error('password') <p class="text-[11px] font-medium text-error mt-1.5 pl-3">⚠ {{ $message }}</p> @enderror
+                    @error('password') <p class="text-[11px] font-medium text-error mt-1.5 pl-3">{{ $message }}</p> @enderror
                 </div>
 
                 <div>
@@ -42,8 +42,8 @@
                 <div>
                     <label for="status" class="block text-xs font-medium text-ink mb-1.5">Status Akun <span class="text-error font-bold">*</span></label>
                     <select id="status" name="status" required class="edudash-select">
-                        <option value="Aktif">● Aktif</option>
-                        <option value="Nonaktif">● Nonaktif</option>
+                        <option value="Aktif">Aktif</option>
+                        <option value="Nonaktif">Nonaktif</option>
                     </select>
                 </div>
             </div>

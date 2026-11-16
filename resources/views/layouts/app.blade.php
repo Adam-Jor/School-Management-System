@@ -21,17 +21,22 @@
           }
       }">
 
-    <!-- Toast Notification (design.md 4.10: hilang otomatis 3 dtk via Alpine) -->
+    <!-- Toast Notification -->
     @if (session('toast'))
         <div x-data="{ show: true }"
              x-init="setTimeout(() => show = false, 3500)"
              x-show="show"
-             x-transition.duration.200ms
-             class="toast toast-top toast-end z-50 mt-3 mr-4">
-            <div class="alert bg-success-soft border border-success text-[#15803D] rounded-full px-5 py-2.5 shadow-lg flex items-center gap-2.5">
-                <span class="size-5 rounded-full bg-success text-white flex items-center justify-center text-xs font-bold">✓</span>
-                <span class="text-xs font-semibold">{{ session('toast') }}</span>
-                <button type="button" @click="show = false" aria-label="Tutup notifikasi" class="text-[#15803D]/70 hover:text-[#15803D] ml-1">✕</button>
+             x-transition.opacity.duration.150ms
+             class="fixed top-4 right-4 z-50">
+            <div class="bg-surface border border-line rounded-xl px-4 py-3 shadow-card flex items-center gap-3">
+                <span class="size-2 rounded-full bg-success shrink-0"></span>
+                <span class="text-xs font-medium text-ink">{{ rtrim(session('toast'), '!.') }}</span>
+                <button type="button"
+                        @click="show = false"
+                        aria-label="Tutup notifikasi"
+                        class="text-muted hover:text-ink transition-colors duration-150">
+                    <x-heroicon-o-x-mark class="size-4 stroke-[1.5]" />
+                </button>
             </div>
         </div>
     @endif
@@ -39,9 +44,9 @@
     <div class="flex min-h-screen">
         <!-- Mobile Sidebar Backdrop -->
         <div x-show="mobileSidebarOpen"
-             x-transition.opacity
+             x-transition.opacity.duration.150ms
              @click="mobileSidebarOpen = false"
-             class="fixed inset-0 bg-ink/30 backdrop-blur-xs z-40 lg:hidden"
+             class="fixed inset-0 bg-ink/30 z-40 lg:hidden"
              style="display: none;"></div>
 
         <!-- Sidebar (240px desktop, drawer on mobile) -->
@@ -53,13 +58,13 @@
             <x-topbar :breadcrumbs="$breadcrumbs" />
 
             <!-- Page Content -->
-            <main class="flex-1 p-6 lg:p-8 max-w-[1400px] w-full mx-auto">
+            <main class="flex-1 p-6 lg:p-8 max-w-[1440px] w-full mx-auto">
                 {{ $slot }}
             </main>
         </div>
     </div>
 
-    <!-- Global Archive Confirmation Modal (design.md 4.10) -->
+    <!-- Global Archive Confirmation Modal -->
     <x-modal-confirm />
 
     @livewireScripts

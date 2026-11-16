@@ -10,33 +10,37 @@
 @layer base {
     html {
         font-family: 'Poppins', ui-sans-serif, system-ui, sans-serif;
-        background-color: #EEF1FF;
-        color: #161B33;
+        background-color: #F5F7FA;
+        color: #111827;
     }
 }
 
 @layer components {
     .edudash-card {
-        @apply bg-surface rounded-[20px] p-6 shadow-card;
+        @apply bg-surface rounded-2xl p-6 shadow-card border border-line/80;
     }
 
     .edudash-input {
-        @apply input input-bordered w-full rounded-full bg-sidebar border-line text-ink text-sm placeholder:text-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition duration-150;
+        @apply h-10 px-3.5 w-full rounded-lg bg-surface border border-line text-ink text-sm placeholder:text-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15 transition-colors duration-150 ease-unslop;
     }
 
     .edudash-select {
-        @apply select select-bordered w-full rounded-full bg-sidebar border-line text-ink text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition duration-150;
+        @apply h-10 px-3.5 w-full rounded-lg bg-surface border border-line text-ink text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15 transition-colors duration-150 ease-unslop;
     }
 
     .edudash-textarea {
-        @apply textarea textarea-bordered w-full rounded-2xl bg-sidebar border-line text-ink text-sm placeholder:text-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition duration-150;
+        @apply p-3.5 w-full rounded-xl bg-surface border border-line text-ink text-sm placeholder:text-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15 transition-colors duration-150 ease-unslop;
     }
 
     .edudash-btn-primary {
-        @apply btn btn-primary rounded-full px-6 text-white font-semibold shadow-primary border-none hover:bg-[#5b49d6] transition duration-150;
+        @apply h-10 inline-flex items-center justify-center rounded-lg px-4 bg-ink text-white text-sm font-medium shadow-primary hover:bg-[#1f2937] active:scale-[0.98] transition-colors duration-150 ease-unslop;
     }
 
     .edudash-btn-secondary {
-        @apply btn btn-ghost rounded-full px-5 bg-surface border border-line text-ink font-medium hover:bg-primary-soft hover:border-primary/30 transition duration-150;
+        @apply h-10 inline-flex items-center justify-center rounded-lg px-4 bg-surface border border-line text-ink text-sm font-medium hover:bg-raised active:scale-[0.98] transition-colors duration-150 ease-unslop;
+    }
+
+    .edudash-keycap {
+        @apply inline-flex items-center px-1.5 py-0.5 rounded-[5px] bg-raised border border-line font-mono text-[11px] text-secondary tabular-nums leading-none;
     }
 }

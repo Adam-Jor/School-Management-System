@@ -2,7 +2,6 @@
     'name' => 'ED',
     'src' => null,
     'size' => 'md',
-    'tone' => 'primary',
 ])
 @php
     $words = preg_split('/\s+/', trim(preg_replace('/[,.].*$/', '', $name) ?: $name)) ?: [];
@@ -13,16 +12,9 @@
     $initials = $initials ?: 'ED';
 
     $sizeClasses = match ($size) {
-        'sm' => 'size-8 text-xs',
-        'lg' => 'size-16 text-xl',
-        default => 'size-9 text-xs',
-    };
-
-    $toneClasses = match ($tone) {
-        'success' => 'bg-success-soft text-[#15803D]',
-        'error' => 'bg-error-soft text-[#B91C1C]',
-        'warning' => 'bg-warning-soft text-[#B45309]',
-        default => 'bg-primary-soft text-primary',
+        'sm' => 'size-7 text-[11px] rounded-md',
+        'lg' => 'size-14 text-base rounded-xl',
+        default => 'size-8 text-xs rounded-lg',
     };
 @endphp
 
@@ -30,9 +22,9 @@
     <img src="{{ asset($src) }}"
          alt="Foto {{ $name }}"
          loading="lazy"
-         class="{{ $sizeClasses }} rounded-full object-cover shrink-0 border border-line" />
+         class="{{ $sizeClasses }} object-cover shrink-0 border border-line" />
 @else
-    <span class="{{ $sizeClasses }} {{ $toneClasses }} rounded-full font-bold flex items-center justify-center shrink-0 select-none">
+    <span class="{{ $sizeClasses }} bg-raised text-secondary border border-line font-medium flex items-center justify-center shrink-0 select-none">
         {{ $initials }}
     </span>
 @endif

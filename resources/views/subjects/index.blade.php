@@ -9,7 +9,7 @@
         <x-slot:actions>
             @if ($user->isAdmin())
                 <a href="{{ route('archive.index', ['tab' => 'subjects']) }}" wire:navigate
-                   class="px-4 py-2.5 rounded-full bg-primary-soft text-primary font-semibold text-xs inline-flex items-center gap-1.5 hover:bg-primary hover:text-white transition">
+                   class="px-4 py-2.5 rounded-md bg-raised border border-line font-mono text-secondary font-semibold text-xs inline-flex items-center gap-1.5 hover:bg-primary hover:text-white transition">
                     <x-heroicon-o-archive-box class="size-4" />
                     <span>Archive ({{ format_number($archivedCount) }})</span>
                 </a>
@@ -25,9 +25,9 @@
                        name="q"
                        value="{{ $search }}"
                        placeholder="Cari kode atau nama mata pelajaran…"
-                       class="w-full h-10 pl-10 pr-4 rounded-full bg-sidebar border border-line text-xs text-ink placeholder:text-muted focus:border-primary focus:outline-none" />
+                       class="w-full h-10 pl-10 pr-4 rounded-lg bg-sidebar border border-line text-xs text-ink placeholder:text-muted focus:border-primary focus:outline-none" />
             </div>
-            <span class="px-4 py-1.5 rounded-full bg-primary-soft text-primary text-xs font-semibold">
+            <span class="px-4 py-1.5 rounded-md bg-raised border border-line font-mono text-secondary text-xs font-semibold">
                 Total: {{ format_number($subjects->total()) }} Mapel
             </span>
         </form>
@@ -76,7 +76,7 @@
                                 <td class="py-3.5 pr-2 text-right whitespace-nowrap">
                                     <div class="inline-flex items-center gap-1.5">
                                         <a href="{{ route('subjects.edit', $sub) }}" wire:navigate
-                                           class="px-3 py-1 rounded-full bg-primary-soft text-primary text-[11px] font-semibold hover:bg-primary hover:text-white transition">
+                                           class="px-3 py-1 rounded-md bg-raised border border-line font-mono text-secondary text-[11px] font-semibold hover:bg-primary hover:text-white transition">
                                             Edit
                                         </a>
                                         <button type="button"

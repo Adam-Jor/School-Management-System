@@ -11,14 +11,14 @@
                     <label for="code" class="block text-xs font-medium text-ink mb-1.5">Kode Kelas <span class="text-error font-bold">*</span></label>
                     <input type="text" id="code" name="code" value="{{ old('code', $schoolClass->code) }}" autofocus required
                            class="edudash-input {{ $errors->has('code') ? 'border-error bg-error-soft/30' : '' }}" />
-                    @error('code') <p class="text-[11px] font-medium text-error mt-1.5 pl-3">⚠ {{ $message }}</p> @enderror
+                    @error('code') <p class="text-[11px] font-medium text-error mt-1.5 pl-3">{{ $message }}</p> @enderror
                 </div>
 
                 <div>
                     <label for="name" class="block text-xs font-medium text-ink mb-1.5">Nama Kelas <span class="text-error font-bold">*</span></label>
                     <input type="text" id="name" name="name" value="{{ old('name', $schoolClass->name) }}" required
                            class="edudash-input {{ $errors->has('name') ? 'border-error bg-error-soft/30' : '' }}" />
-                    @error('name') <p class="text-[11px] font-medium text-error mt-1.5 pl-3">⚠ {{ $message }}</p> @enderror
+                    @error('name') <p class="text-[11px] font-medium text-error mt-1.5 pl-3">{{ $message }}</p> @enderror
                 </div>
 
                 <div>
@@ -40,7 +40,7 @@
                 <button type="button"
                         @click="openArchiveModal('{{ route('classes.archive', $schoolClass) }}', '{{ addslashes($schoolClass->name) }}', '{{ $schoolClass->code }}')"
                         class="px-4 py-2 rounded-full bg-error-soft border border-error text-[#B91C1C] text-xs font-semibold hover:bg-error hover:text-white transition">
-                    🗄 Archive Kelas
+                    Archive Kelas
                 </button>
             </div>
 

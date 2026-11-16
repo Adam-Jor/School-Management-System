@@ -10,19 +10,19 @@
                 <div>
                     <label for="name" class="block text-xs font-medium text-ink mb-1.5">Nama Lengkap <span class="text-error font-bold">*</span></label>
                     <input type="text" id="name" name="name" value="{{ old('name', $user->name) }}" autofocus required class="edudash-input" />
-                    @error('name') <p class="text-[11px] font-medium text-error mt-1.5 pl-3">⚠ {{ $message }}</p> @enderror
+                    @error('name') <p class="text-[11px] font-medium text-error mt-1.5 pl-3">{{ $message }}</p> @enderror
                 </div>
 
                 <div>
                     <label for="username" class="block text-xs font-medium text-ink mb-1.5">Username <span class="text-error font-bold">*</span></label>
                     <input type="text" id="username" name="username" value="{{ old('username', $user->username) }}" required class="edudash-input" />
-                    @error('username') <p class="text-[11px] font-medium text-error mt-1.5 pl-3">⚠ {{ $message }}</p> @enderror
+                    @error('username') <p class="text-[11px] font-medium text-error mt-1.5 pl-3">{{ $message }}</p> @enderror
                 </div>
 
                 <div>
                     <label for="email" class="block text-xs font-medium text-ink mb-1.5">Alamat Email <span class="text-error font-bold">*</span></label>
                     <input type="email" id="email" name="email" value="{{ old('email', $user->email) }}" required class="edudash-input" />
-                    @error('email') <p class="text-[11px] font-medium text-error mt-1.5 pl-3">⚠ {{ $message }}</p> @enderror
+                    @error('email') <p class="text-[11px] font-medium text-error mt-1.5 pl-3">{{ $message }}</p> @enderror
                 </div>
 
                 <div>
@@ -42,8 +42,8 @@
                 <div>
                     <label for="status" class="block text-xs font-medium text-ink mb-1.5">Status Akun <span class="text-error font-bold">*</span></label>
                     <select id="status" name="status" required class="edudash-select">
-                        <option value="Aktif" @selected(old('status', $user->status) === 'Aktif')>● Aktif</option>
-                        <option value="Nonaktif" @selected(old('status', $user->status) === 'Nonaktif')>● Nonaktif</option>
+                        <option value="Aktif" @selected(old('status', $user->status) === 'Aktif')>Aktif</option>
+                        <option value="Nonaktif" @selected(old('status', $user->status) === 'Nonaktif')>Nonaktif</option>
                     </select>
                 </div>
             </div>

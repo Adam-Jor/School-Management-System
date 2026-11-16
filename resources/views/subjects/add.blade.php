@@ -9,14 +9,14 @@
                     <label for="code" class="block text-xs font-medium text-ink mb-1.5">Kode Mapel <span class="text-error font-bold">*</span></label>
                     <input type="text" id="code" name="code" value="{{ old('code', $nextCode) }}" placeholder="Contoh: MP-009" autofocus required
                            class="edudash-input {{ $errors->has('code') ? 'border-error bg-error-soft/30' : '' }}" />
-                    @error('code') <p class="text-[11px] font-medium text-error mt-1.5 pl-3">⚠ {{ $message }}</p> @enderror
+                    @error('code') <p class="text-[11px] font-medium text-error mt-1.5 pl-3">{{ $message }}</p> @enderror
                 </div>
 
                 <div>
                     <label for="name" class="block text-xs font-medium text-ink mb-1.5">Nama Mata Pelajaran <span class="text-error font-bold">*</span></label>
                     <input type="text" id="name" name="name" value="{{ old('name') }}" placeholder="Contoh: Sejarah Indonesia" required
                            class="edudash-input {{ $errors->has('name') ? 'border-error bg-error-soft/30' : '' }}" />
-                    @error('name') <p class="text-[11px] font-medium text-error mt-1.5 pl-3">⚠ {{ $message }}</p> @enderror
+                    @error('name') <p class="text-[11px] font-medium text-error mt-1.5 pl-3">{{ $message }}</p> @enderror
                 </div>
 
                 <div>

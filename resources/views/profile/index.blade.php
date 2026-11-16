@@ -66,19 +66,19 @@
                     <div>
                         <label for="name" class="block text-xs font-medium text-ink mb-1.5">Nama Lengkap <span class="text-error font-bold">*</span></label>
                         <input type="text" id="name" name="name" value="{{ old('name', $user->name) }}" autofocus required class="edudash-input" />
-                        @error('name') <p class="text-[11px] font-medium text-error mt-1.5 pl-3">⚠ {{ $message }}</p> @enderror
+                        @error('name') <p class="text-[11px] font-medium text-error mt-1.5 pl-3">{{ $message }}</p> @enderror
                     </div>
 
                     <div>
                         <label for="email" class="block text-xs font-medium text-ink mb-1.5">Alamat Email <span class="text-error font-bold">*</span></label>
                         <input type="email" id="email" name="email" value="{{ old('email', $user->email) }}" required class="edudash-input" />
-                        @error('email') <p class="text-[11px] font-medium text-error mt-1.5 pl-3">⚠ {{ $message }}</p> @enderror
+                        @error('email') <p class="text-[11px] font-medium text-error mt-1.5 pl-3">{{ $message }}</p> @enderror
                     </div>
 
                     <div>
                         <label for="phone" class="block text-xs font-medium text-ink mb-1.5">Nomor Telepon</label>
                         <input type="text" id="phone" name="phone" value="{{ old('phone', $user->phone) }}" placeholder="081234567890" class="edudash-input" />
-                        @error('phone') <p class="text-[11px] font-medium text-error mt-1.5 pl-3">⚠ {{ $message }}</p> @enderror
+                        @error('phone') <p class="text-[11px] font-medium text-error mt-1.5 pl-3">{{ $message }}</p> @enderror
                     </div>
 
                     <div>
