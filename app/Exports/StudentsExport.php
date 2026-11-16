@@ -15,6 +15,7 @@ class StudentsExport implements FromQuery, ShouldAutoSize, WithHeadings, WithMap
         protected string $search = '',
         protected string $classId = '',
         protected string $status = '',
+        protected ?int $onlyUserId = null,
     ) {}
 
     public function query(): Builder
@@ -24,6 +25,7 @@ class StudentsExport implements FromQuery, ShouldAutoSize, WithHeadings, WithMap
             ->leftJoin('tbl_classes', 'tbl_students.class_id', '=', 'tbl_classes.id')
             ->leftJoin('tbl_users', 'tbl_students.user_id', '=', 'tbl_users.id')
             ->with(['schoolClass', 'user'])
+            ->when($this->onlyUserId !== null, fn ($q) => $q->where('tbl_students.user_id', $this->onlyUserId))
             ->when($this->search !== '', function ($q) {
                 $q->where(function ($sub) {
                     $sub->where('tbl_students.name', 'like', "%{$this->search}%")

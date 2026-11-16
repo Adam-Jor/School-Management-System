@@ -23,23 +23,44 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-    // Dashboard (Admin, Teacher, Student)
+    // Dashboard (Admin: Full, Teacher: View, Student: View) — renders role-separated dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/admin/dashboard', [DashboardController::class, 'admin'])
+        ->middleware('role:admin')
+        ->name('admin.dashboard');
+    Route::get('/teacher/dashboard', [DashboardController::class, 'teacher'])
+        ->middleware('role:teacher')
+        ->name('teacher.dashboard');
+    Route::get('/student/dashboard', [DashboardController::class, 'student'])
+        ->middleware('role:student')
+        ->name('student.dashboard');
 
-    // Profile User
+    // Profile User (Admin: Edit, Teacher: Edit, Student: Edit)
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
-    // Read-only Index Routes (accessible to Admin, Teacher, Student)
+    // Manajemen Students (Admin: CRUD, Teacher: View, Student: View data sendiri)
     Route::get('/students', [StudentController::class, 'index'])->name('students.index');
-    Route::get('/teachers', [TeacherController::class, 'index'])->name('teachers.index');
+
+    // Manajemen Classes (Admin: CRUD, Teacher: View, Student: View)
     Route::get('/classes', [ClassController::class, 'index'])->name('classes.index');
-    Route::get('/subjects', [SubjectController::class, 'index'])->name('subjects.index');
+
+    // Manajemen Subjects (Admin: CRUD, Teacher: View, Student: -)
+    Route::get('/subjects', [SubjectController::class, 'index'])
+        ->middleware('role:admin,teacher')
+        ->name('subjects.index');
+
+    // Absensi Siswa (Admin: Full, Teacher: kelas yang diajar, Student: data sendiri)
     Route::get('/attendances', [AttendanceController::class, 'index'])->name('attendances.index');
+    Route::post('/attendances', [AttendanceController::class, 'store'])
+        ->middleware('role:admin,teacher')
+        ->name('attendances.store');
+
+    // Nilai & Rapor (Admin: Full, Teacher: View, Student: data & rapor sendiri)
     Route::get('/grades', [GradeController::class, 'index'])->name('grades.index');
     Route::get('/grades/report/{student:slug}/pdf', [GradeController::class, 'reportPdf'])->name('grades.report.pdf');
 
-    // Admin-only CRUD Routes (Create, Store, Edit, Update, Archive, Restore, Users)
+    // Admin-only CRUD Routes (Users, Teachers, Students CRUD, Classes CRUD, Subjects CRUD, Grades Write, Archive)
     Route::middleware('role:admin')->group(function () {
         // Students CRUD
         Route::get('/students/add', [StudentController::class, 'create'])->name('students.create');
@@ -49,7 +70,8 @@ Route::middleware('auth')->group(function () {
         Route::put('/students/{student:slug}', [StudentController::class, 'update'])->name('students.update');
         Route::patch('/students/{student:slug}/archive', [StudentController::class, 'archive'])->name('students.archive');
 
-        // Teachers CRUD
+        // Teachers (Admin: CRUD, Teacher: -, Student: -)
+        Route::get('/teachers', [TeacherController::class, 'index'])->name('teachers.index');
         Route::get('/teachers/add', [TeacherController::class, 'create'])->name('teachers.create');
         Route::post('/teachers', [TeacherController::class, 'store'])->name('teachers.store');
         Route::post('/teachers/import', [TeacherController::class, 'import'])->name('teachers.import');
@@ -71,11 +93,10 @@ Route::middleware('auth')->group(function () {
         Route::put('/subjects/{subject:slug}', [SubjectController::class, 'update'])->name('subjects.update');
         Route::patch('/subjects/{subject:slug}/archive', [SubjectController::class, 'archive'])->name('subjects.archive');
 
-        // Attendances & Grades Write Routes
-        Route::post('/attendances', [AttendanceController::class, 'store'])->name('attendances.store');
+        // Grades Write
         Route::post('/grades', [GradeController::class, 'store'])->name('grades.store');
 
-        // Users CRUD
+        // Users CRUD (Admin: CRUD, Teacher: -, Student: -)
         Route::get('/users', [UserController::class, 'index'])->name('users.index');
         Route::get('/users/add', [UserController::class, 'create'])->name('users.create');
         Route::post('/users', [UserController::class, 'store'])->name('users.store');

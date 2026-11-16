@@ -6,39 +6,45 @@
     <!-- Livewire Server-Side Filter, Search (debounce 300ms) & Export Bar -->
     <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
         <div class="flex flex-wrap items-center gap-2.5 flex-1">
-            <div class="relative flex-1 min-w-[220px] max-w-xs">
-                <x-heroicon-o-magnifying-glass class="size-4 stroke-[1.5] text-muted absolute left-3 top-3 pointer-events-none" />
-                <input type="search"
-                       wire:model.live.debounce.300ms="search"
-                       placeholder="Cari nama, kode, atau email"
-                       aria-label="Cari data siswa"
-                       class="w-full h-10 pl-9 pr-3.5 rounded-lg bg-sidebar border border-line text-xs text-ink placeholder:text-muted focus:border-primary focus:outline-none" />
-            </div>
+            @if ($isStudent)
+                <p class="text-xs font-medium text-secondary">
+                    Menampilkan data siswa pribadi yang terhubung dengan akun Anda.
+                </p>
+            @else
+                <div class="relative flex-1 min-w-[220px] max-w-xs">
+                    <x-heroicon-o-magnifying-glass class="size-4 stroke-[1.5] text-muted absolute left-3 top-3 pointer-events-none" />
+                    <input type="search"
+                           wire:model.live.debounce.300ms="search"
+                           placeholder="Cari nama, kode, atau email"
+                           aria-label="Cari data siswa"
+                           class="w-full h-10 pl-9 pr-3.5 rounded-lg bg-sidebar border border-line text-xs text-ink placeholder:text-muted focus:border-primary focus:outline-none" />
+                </div>
 
-            <select wire:model.live="classId"
-                    aria-label="Filter berdasarkan kelas"
-                    class="h-10 px-3.5 rounded-lg bg-sidebar border border-line text-xs font-normal text-ink focus:border-primary focus:outline-none">
-                <option value="">Semua kelas ({{ format_number(count($classes)) }})</option>
-                @foreach ($classes as $cls)
-                    <option value="{{ $cls->id }}">{{ $cls->name }}</option>
-                @endforeach
-            </select>
+                <select wire:model.live="classId"
+                        aria-label="Filter berdasarkan kelas"
+                        class="h-10 px-3.5 rounded-lg bg-sidebar border border-line text-xs font-normal text-ink focus:border-primary focus:outline-none">
+                    <option value="">Semua kelas ({{ format_number(count($classes)) }})</option>
+                    @foreach ($classes as $cls)
+                        <option value="{{ $cls->id }}">{{ $cls->name }}</option>
+                    @endforeach
+                </select>
 
-            <select wire:model.live="status"
-                    aria-label="Filter berdasarkan status"
-                    class="h-10 px-3.5 rounded-lg bg-sidebar border border-line text-xs font-normal text-ink focus:border-primary focus:outline-none">
-                <option value="">Semua status</option>
-                <option value="Aktif">Aktif</option>
-                <option value="Pindah">Pindah</option>
-                <option value="Menunggu">Menunggu</option>
-            </select>
+                <select wire:model.live="status"
+                        aria-label="Filter berdasarkan status"
+                        class="h-10 px-3.5 rounded-lg bg-sidebar border border-line text-xs font-normal text-ink focus:border-primary focus:outline-none">
+                    <option value="">Semua status</option>
+                    <option value="Aktif">Aktif</option>
+                    <option value="Pindah">Pindah</option>
+                    <option value="Menunggu">Menunggu</option>
+                </select>
 
-            @if ($search !== '' || $classId !== '' || $status !== '')
-                <button type="button"
-                        wire:click="resetFilters"
-                        class="h-10 px-3 rounded-lg border border-line text-xs text-secondary hover:bg-raised transition-colors duration-150">
-                    Reset
-                </button>
+                @if ($search !== '' || $classId !== '' || $status !== '')
+                    <button type="button"
+                            wire:click="resetFilters"
+                            class="h-10 px-3 rounded-lg border border-line text-xs text-secondary hover:bg-raised transition-colors duration-150">
+                        Reset
+                    </button>
+                @endif
             @endif
         </div>
 
@@ -59,7 +65,7 @@
         </div>
     </div>
 
-    <!-- Skeleton Loader (PRD 9 & 9.1: tampil saat filter/search Livewire diproses) -->
+    <!-- Loading indicator saat pencarian atau filter diproses -->
     <div wire:loading.flex class="hidden items-center gap-3 mb-4 px-3 py-2 rounded-lg bg-sidebar border border-line text-xs text-muted">
         <span class="loading loading-spinner loading-xs text-primary"></span>
         <span>Memuat data siswa...</span>

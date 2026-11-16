@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\GradeRequest;
 use App\Models\ActivityLog;
 use App\Models\Attendance;
 use App\Models\Grade;
@@ -18,15 +19,23 @@ class GradeController extends Controller
 {
     public function index(Request $request): View
     {
-        $classes = SchoolClass::orderBy('name')->get();
+        $user = $request->user();
+        $isStudent = $user->isStudent();
+        $ownStudent = $isStudent ? $user->student?->load('schoolClass') : null;
+
+        $classes = $isStudent
+            ? ($ownStudent?->schoolClass ? collect([$ownStudent->schoolClass]) : collect())
+            : SchoolClass::orderBy('name')->get();
         $subjects = Subject::orderBy('code')->get();
-        $classId = $request->query('class_id', '');
-        $subjectId = $request->query('subject_id', '');
-        $semester = $request->query('semester', 'Ganjil 2026/2027');
+
+        $classId = $isStudent ? (string) ($ownStudent?->class_id ?? '') : (string) $request->query('class_id', '');
+        $subjectId = (string) $request->query('subject_id', '');
+        $semester = (string) $request->query('semester', 'Ganjil 2026/2027');
 
         $grades = Grade::query()
             ->with(['student.schoolClass', 'subject'])
-            ->when($classId !== '', function ($q) use ($classId) {
+            ->when($isStudent, fn ($q) => $q->where('student_id', $ownStudent?->id ?? 0))
+            ->when(! $isStudent && $classId !== '', function ($q) use ($classId) {
                 $q->whereHas('student', fn ($sub) => $sub->where('class_id', $classId));
             })
             ->when($subjectId !== '', fn ($q) => $q->where('subject_id', $subjectId))
@@ -35,7 +44,9 @@ class GradeController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        $students = Student::with('schoolClass')->orderBy('name')->get();
+        $students = $isStudent
+            ? ($ownStudent ? collect([$ownStudent]) : collect())
+            : Student::with('schoolClass')->orderBy('name')->get();
 
         return view('grades.index', compact(
             'grades',
@@ -48,18 +59,9 @@ class GradeController extends Controller
         ));
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(GradeRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'student_id' => ['required', 'exists:tbl_students,id'],
-            'subject_id' => ['required', 'exists:tbl_subjects,id'],
-            'semester' => ['required', 'string', 'max:40'],
-            'score' => ['required', 'numeric', 'min:0', 'max:100'],
-        ], [
-            'student_id.required' => 'Siswa wajib dipilih.',
-            'subject_id.required' => 'Mata pelajaran wajib dipilih.',
-            'score.required' => 'Nilai angka (0–100) wajib diisi.',
-        ]);
+        $validated = $request->validated();
 
         $score = (float) $validated['score'];
         $predicate = match (true) {
@@ -69,7 +71,7 @@ class GradeController extends Controller
             default => 'D',
         };
 
-        $grade = Grade::updateOrCreate(
+        Grade::updateOrCreate(
             [
                 'student_id' => $validated['student_id'],
                 'subject_id' => $validated['subject_id'],
@@ -96,8 +98,12 @@ class GradeController extends Controller
             ->with('toast', 'Nilai '.($subject?->name ?? '').' untuk '.($student?->name ?? '').' berhasil disimpan!');
     }
 
-    public function reportPdf(Student $student): Response
+    public function reportPdf(Request $request, Student $student): Response
     {
+        if ($request->user()?->isStudent() && $student->user_id !== $request->user()->id) {
+            abort(403, 'Anda hanya diizinkan mengunduh rapor akademik milik Anda sendiri.');
+        }
+
         $student->load(['schoolClass', 'user']);
         $grades = Grade::with('subject')
             ->where('student_id', $student->id)

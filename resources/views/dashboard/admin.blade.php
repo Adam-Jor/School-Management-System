@@ -1,15 +1,11 @@
-<x-layouts.app title="Ringkasan Akademik" :breadcrumbs="[['label' => 'Dashboard']]">
-    @php
-        $user = auth()->user();
-    @endphp
-
-    <!-- Context & Period Headline (Unslop Pass 4: no greeting headline, no trailing period) -->
+<x-layouts.app title="Dashboard Admin" :breadcrumbs="[['label' => 'Dashboard Admin']]">
+    <!-- Context & Period Headline -->
     <x-page-header
         title="Ringkasan Akademik · TA 2026/2027"
         :subtitle="'Data operasional siswa, guru, dan rombongan belajar per ' . format_date(now())"
         :isHero="true"
-        :ctaLabel="$user->isAdmin() ? 'Tambah Siswa' : null"
-        :ctaUrl="$user->isAdmin() ? route('students.create') : null"
+        ctaLabel="Tambah Siswa"
+        :ctaUrl="route('students.create')"
     />
 
     <!-- Global Search Results Banner -->
@@ -61,20 +57,6 @@
         </x-card>
     @endif
 
-    <!-- Role Indicator Banner for Teacher / Student -->
-    @if (! $user->isAdmin())
-        <div class="mb-6 px-4 py-3 rounded-xl bg-surface border border-line flex flex-wrap items-center justify-between gap-2 text-xs">
-            <div class="flex items-center gap-2.5">
-                <span class="size-2 rounded-full bg-primary"></span>
-                <span class="font-medium text-ink">Akses baca ({{ ucfirst($user->role) }})</span>
-                <span class="text-secondary">Anda dapat meninjau seluruh direktori dan mengunduh laporan tanpa hak ubah data</span>
-            </div>
-            <a href="{{ route('profile.show') }}" wire:navigate class="font-medium text-primary hover:underline">
-                Buka profil saya
-            </a>
-        </div>
-    @endif
-
     <!-- KPI Strip (1 card, 5 columns, tabular figures, real DB counts & deltas) -->
     <x-card class="mb-6">
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-y-4 lg:divide-x lg:divide-line">
@@ -108,7 +90,7 @@
 
     <!-- Middle Row: Main Chart (col-span-8) & Academic Registry Card (col-span-4) -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
-        <!-- Main Chart (The Bright Element / Moment 1) -->
+        <!-- Main Chart -->
         <x-card class="lg:col-span-8 flex flex-col justify-between" x-data="{ openTable: false, chartMode: 'growth', payload: @js($chartData) }">
             <div>
                 <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
@@ -132,7 +114,7 @@
                 </div>
             </div>
 
-            <!-- Accessible Data Table Collapse (Sinkron dengan mode dropdown aktif) -->
+            <!-- Accessible Data Table Collapse -->
             <div class="mt-4 pt-3 border-t border-line">
                 <button type="button"
                         @click="openTable = !openTable"
@@ -161,7 +143,7 @@
             </div>
         </x-card>
 
-        <!-- Academic Registry Card (Moment 2: Real Product Material instead of pastel promo) -->
+        <!-- Academic Registry Card -->
         <x-card class="lg:col-span-4 flex flex-col justify-between">
             <div>
                 <div class="flex items-center justify-between mb-3">
@@ -251,9 +233,7 @@
                             <th class="py-3 px-3">Nama Siswa</th>
                             <th class="py-3 px-3">Kelas</th>
                             <th class="py-3 px-3">Status</th>
-                            @if ($user->isAdmin())
-                                <th class="py-3 pr-2 text-right">Tindakan</th>
-                            @endif
+                            <th class="py-3 pr-2 text-right">Tindakan</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-line text-sm">
@@ -282,23 +262,21 @@
                                 <td class="py-3 px-3 whitespace-nowrap">
                                     <x-status-badge :status="$student->status" />
                                 </td>
-                                @if ($user->isAdmin())
-                                    <td class="py-3 pr-2 text-right whitespace-nowrap">
-                                        <div class="inline-flex items-center justify-end gap-1">
-                                            <a href="{{ route('students.edit', $student) }}" wire:navigate
-                                               aria-label="Edit {{ $student->name }}"
-                                               class="size-8 rounded-lg text-muted hover:bg-raised hover:text-ink flex items-center justify-center transition-colors duration-150">
-                                                <x-heroicon-o-pencil-square class="size-4 stroke-[1.5]" />
-                                            </a>
-                                            <button type="button"
-                                                    @click="openArchiveModal('{{ route('students.archive', $student) }}', '{{ addslashes($student->name) }}', '{{ $student->student_code }}')"
-                                                    aria-label="Arsipkan {{ $student->name }}"
-                                                    class="size-8 rounded-lg text-muted hover:bg-error-soft hover:text-error flex items-center justify-center transition-colors duration-150">
-                                                <x-heroicon-o-archive-box class="size-4 stroke-[1.5]" />
-                                            </button>
-                                        </div>
-                                    </td>
-                                @endif
+                                <td class="py-3 pr-2 text-right whitespace-nowrap">
+                                    <div class="inline-flex items-center justify-end gap-1">
+                                        <a href="{{ route('students.edit', $student) }}" wire:navigate
+                                           aria-label="Edit {{ $student->name }}"
+                                           class="size-8 rounded-lg text-muted hover:bg-raised hover:text-ink flex items-center justify-center transition-colors duration-150">
+                                            <x-heroicon-o-pencil-square class="size-4 stroke-[1.5]" />
+                                        </a>
+                                        <button type="button"
+                                                @click="openArchiveModal('{{ route('students.archive', $student) }}', '{{ addslashes($student->name) }}', '{{ $student->student_code }}')"
+                                                aria-label="Arsipkan {{ $student->name }}"
+                                                class="size-8 rounded-lg text-muted hover:bg-error-soft hover:text-error flex items-center justify-center transition-colors duration-150">
+                                            <x-heroicon-o-archive-box class="size-4 stroke-[1.5]" />
+                                        </button>
+                                    </div>
+                                </td>
                             </tr>
                         @empty
                             <tr>
@@ -369,7 +347,7 @@
 
             <div class="mt-4 pt-3 border-t border-line flex items-center justify-between text-xs text-muted tabular-nums">
                 <span>{{ format_number(count($activities)) }} catatan terakhir</span>
-                <span class="font-mono text-[11px]">activity_log (spatie)</span>
+                <span class="font-mono text-[11px]">Riwayat Audit Sistem</span>
             </div>
         </x-card>
     </div>

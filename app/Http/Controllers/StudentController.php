@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exports\StudentsExport;
+use App\Http\Requests\ExcelImportRequest;
 use App\Http\Requests\StudentRequest;
 use App\Imports\StudentsImport;
 use App\Models\ActivityLog;
@@ -25,25 +26,29 @@ class StudentController extends Controller
 {
     public function index(Request $request): View|BinaryFileResponse|Response
     {
+        $user = $request->user();
+        $isStudent = $user?->isStudent() ?? false;
+        $onlyUserId = $isStudent ? $user->id : null;
+
         $search = trim((string) $request->query('q', ''));
-        $classId = (string) $request->query('class_id', '');
-        $status = (string) $request->query('status', '');
+        $classId = $isStudent ? '' : (string) $request->query('class_id', '');
+        $status = $isStudent ? '' : (string) $request->query('status', '');
         $exportType = (string) $request->query('export', '');
 
         if (in_array($exportType, ['xlsx', 'csv'], true)) {
             $format = $exportType === 'csv' ? ExcelFormat::CSV : ExcelFormat::XLSX;
             $extension = $exportType === 'csv' ? 'csv' : 'xlsx';
-            ActivityLog::record("Ekspor data siswa ({$extension})", 'students', 'Maatwebsite Excel Export', 'primary');
+            ActivityLog::record("Ekspor data siswa ({$extension})", 'students', 'Ekspor Excel', 'primary');
 
             return Excel::download(
-                new StudentsExport($search, $classId, $status),
+                new StudentsExport($search, $classId, $status, $onlyUserId),
                 'data-siswa-'.now()->format('YmdHis').'.'.$extension,
                 $format
             );
         }
 
         if ($exportType === 'pdf') {
-            $rows = (new StudentsExport($search, $classId, $status))->query()->get();
+            $rows = (new StudentsExport($search, $classId, $status, $onlyUserId))->query()->get();
             ActivityLog::record('Ekspor laporan PDF siswa', 'students', count($rows).' data siswa', 'muted');
 
             $pdf = Pdf::loadView('students.pdf', ['students' => $rows]);
@@ -51,7 +56,7 @@ class StudentController extends Controller
             return $pdf->download('laporan-data-siswa-'.now()->format('YmdHis').'.pdf');
         }
 
-        $archivedCount = Student::onlyArchived()->count();
+        $archivedCount = $user?->isAdmin() ? Student::onlyArchived()->count() : 0;
 
         return view('students.index', compact('archivedCount'));
     }
@@ -152,15 +157,9 @@ class StudentController extends Controller
             ->with('toast', 'Data siswa '.$student->name.' telah dipindahkan ke Archive');
     }
 
-    public function import(Request $request): RedirectResponse
+    public function import(ExcelImportRequest $request): RedirectResponse
     {
-        $request->validate([
-            'excel_file' => ['required_without:csv_file', 'nullable', 'file', 'mimes:xlsx,xls,csv,txt', 'max:4096'],
-            'csv_file' => ['nullable', 'file', 'mimes:xlsx,xls,csv,txt', 'max:4096'],
-        ], [
-            'excel_file.required_without' => 'Pilih file Excel (.xlsx) atau CSV untuk diimpor.',
-            'excel_file.mimes' => 'File harus berformat XLSX, XLS, atau CSV.',
-        ]);
+        $request->validated();
 
         $uploadedFile = $request->file('excel_file') ?? $request->file('csv_file');
         $importer = new StudentsImport;

@@ -67,24 +67,28 @@
                             <span class="w-[18px] flex items-center justify-center shrink-0">
                                 <x-heroicon-o-academic-cap class="size-[18px] stroke-[1.5] {{ request()->routeIs('students.*') ? 'text-primary' : 'text-muted' }}" />
                             </span>
-                            <span>Data Siswa</span>
+                            <span>{{ $user?->isStudent() ? 'Data Pribadi Siswa' : 'Data Siswa' }}</span>
                         </span>
-                        <span class="font-mono text-xs text-muted tabular-nums">{{ format_number($counts['students'] ?? 0) }}</span>
+                        @unless ($user?->isStudent())
+                            <span class="font-mono text-xs text-muted tabular-nums">{{ format_number($counts['students'] ?? 0) }}</span>
+                        @endunless
                     </a>
                 </li>
 
-                <li>
-                    <a href="{{ route('teachers.index') }}" wire:navigate
-                       class="h-9 flex items-center justify-between px-2.5 rounded-lg text-sm transition-colors duration-150 {{ request()->routeIs('teachers.*') ? 'bg-raised text-ink font-medium border border-line/80' : 'text-secondary font-normal hover:bg-raised/60 hover:text-ink' }}">
-                        <span class="flex items-center gap-2.5">
-                            <span class="w-[18px] flex items-center justify-center shrink-0">
-                                <x-heroicon-o-user-circle class="size-[18px] stroke-[1.5] {{ request()->routeIs('teachers.*') ? 'text-primary' : 'text-muted' }}" />
+                @if ($user?->isAdmin())
+                    <li>
+                        <a href="{{ route('teachers.index') }}" wire:navigate
+                           class="h-9 flex items-center justify-between px-2.5 rounded-lg text-sm transition-colors duration-150 {{ request()->routeIs('teachers.*') ? 'bg-raised text-ink font-medium border border-line/80' : 'text-secondary font-normal hover:bg-raised/60 hover:text-ink' }}">
+                            <span class="flex items-center gap-2.5">
+                                <span class="w-[18px] flex items-center justify-center shrink-0">
+                                    <x-heroicon-o-user-circle class="size-[18px] stroke-[1.5] {{ request()->routeIs('teachers.*') ? 'text-primary' : 'text-muted' }}" />
+                                </span>
+                                <span>Data Guru</span>
                             </span>
-                            <span>Data Guru</span>
-                        </span>
-                        <span class="font-mono text-xs text-muted tabular-nums">{{ format_number($counts['teachers'] ?? 0) }}</span>
-                    </a>
-                </li>
+                            <span class="font-mono text-xs text-muted tabular-nums">{{ format_number($counts['teachers'] ?? 0) }}</span>
+                        </a>
+                    </li>
+                @endif
 
                 <li>
                     <a href="{{ route('classes.index') }}" wire:navigate
@@ -99,18 +103,20 @@
                     </a>
                 </li>
 
-                <li>
-                    <a href="{{ route('subjects.index') }}" wire:navigate
-                       class="h-9 flex items-center justify-between px-2.5 rounded-lg text-sm transition-colors duration-150 {{ request()->routeIs('subjects.*') ? 'bg-raised text-ink font-medium border border-line/80' : 'text-secondary font-normal hover:bg-raised/60 hover:text-ink' }}">
-                        <span class="flex items-center gap-2.5">
-                            <span class="w-[18px] flex items-center justify-center shrink-0">
-                                <x-heroicon-o-book-open class="size-[18px] stroke-[1.5] {{ request()->routeIs('subjects.*') ? 'text-primary' : 'text-muted' }}" />
+                @if ($user?->isAdmin() || $user?->isTeacher())
+                    <li>
+                        <a href="{{ route('subjects.index') }}" wire:navigate
+                           class="h-9 flex items-center justify-between px-2.5 rounded-lg text-sm transition-colors duration-150 {{ request()->routeIs('subjects.*') ? 'bg-raised text-ink font-medium border border-line/80' : 'text-secondary font-normal hover:bg-raised/60 hover:text-ink' }}">
+                            <span class="flex items-center gap-2.5">
+                                <span class="w-[18px] flex items-center justify-center shrink-0">
+                                    <x-heroicon-o-book-open class="size-[18px] stroke-[1.5] {{ request()->routeIs('subjects.*') ? 'text-primary' : 'text-muted' }}" />
+                                </span>
+                                <span>Mata Pelajaran</span>
                             </span>
-                            <span>Mata Pelajaran</span>
-                        </span>
-                        <span class="font-mono text-xs text-muted tabular-nums">{{ format_number($counts['subjects'] ?? 0) }}</span>
-                    </a>
-                </li>
+                            <span class="font-mono text-xs text-muted tabular-nums">{{ format_number($counts['subjects'] ?? 0) }}</span>
+                        </a>
+                    </li>
+                @endif
             </ul>
         </div>
 

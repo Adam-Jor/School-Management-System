@@ -5,8 +5,8 @@
 
     <div x-data="{ importModalOpen: false }">
         <x-page-header
-            title="Data Siswa"
-            subtitle="Direktori siswa aktif, penempatan kelas, dan status registrasi"
+            :title="$user->isStudent() ? 'Data Pribadi Siswa' : 'Data Siswa'"
+            :subtitle="$user->isStudent() ? 'Informasi profil akademik dan status registrasi pribadi Anda' : 'Direktori siswa aktif, penempatan kelas, dan status registrasi'"
             :ctaLabel="$user->isAdmin() ? 'Tambah Siswa' : null"
             :ctaUrl="$user->isAdmin() ? route('students.create') : null">
             <x-slot:actions>
@@ -42,6 +42,7 @@
                     <form action="{{ route('students.import') }}" method="POST" enctype="multipart/form-data" class="mt-4 space-y-4">
                         @csrf
                         <input type="file" name="excel_file" accept=".xlsx,.xls,.csv,.txt" required class="block w-full text-xs text-secondary file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border file:border-line file:bg-sidebar file:text-ink file:font-medium" />
+                        @error('excel_file') <p class="text-xs text-error">{{ $message }}</p> @enderror
                         <div class="flex items-center justify-end gap-2">
                             <button type="button" @click="importModalOpen = false" class="edudash-btn-secondary h-9 px-4 text-xs">Batal</button>
                             <button type="submit" class="edudash-btn-primary h-9 px-4 text-xs">Impor Sekarang</button>
