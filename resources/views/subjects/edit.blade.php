@@ -24,6 +24,7 @@
                 <div>
                     <label for="credit_hours" class="block text-xs font-medium text-ink mb-1.5">Beban Jam Pelajaran (JP) <span class="text-error font-bold">*</span></label>
                     <input type="number" id="credit_hours" name="credit_hours" value="{{ old('credit_hours', $subject->credit_hours) }}" min="1" max="12" required class="edudash-input" />
+                    @error('credit_hours') <p class="text-[11px] font-medium text-error mt-1.5 pl-3">{{ $message }}</p> @enderror
                 </div>
             </div>
 
@@ -34,8 +35,8 @@
 
             <div class="bg-[#FEF2F2] border border-error-soft rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3">
                 <div>
-                    <p class="text-xs font-semibold text-[#B91C1C]">Arsipkan Mata Pelajaran (Soft Delete)</p>
-                    <p class="text-[11px] text-muted mt-0.5">Pindahkan mata pelajaran ke Archive (<code class="text-ink">archived = 1</code>).</p>
+                    <p class="text-xs font-semibold text-[#B91C1C]">Arsipkan Mata Pelajaran</p>
+                    <p class="text-[11px] text-muted mt-0.5">Pindahkan mata pelajaran ke arsip tanpa menghapus riwayat nilai.</p>
                 </div>
                 <button type="button"
                         @click="openArchiveModal('{{ route('subjects.archive', $subject) }}', '{{ addslashes($subject->name) }}', '{{ $subject->code }}')"

@@ -1,7 +1,7 @@
 <x-layouts.app title="Tambah Data Siswa" :breadcrumbs="[['label' => 'Data Siswa', 'url' => route('students.index')], ['label' => 'Tambah Siswa']]">
     <x-page-header
         title="Tambah Data Siswa"
-        subtitle="Formulir pendaftaran siswa baru pada registri tbl_students" />
+        subtitle="Formulir pendaftaran siswa baru dan penempatan rombongan belajar" />
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         <x-card class="lg:col-span-8 max-w-[720px] w-full">
@@ -163,7 +163,7 @@
         <x-card class="lg:col-span-4 space-y-3">
             <h2 class="text-sm font-medium text-ink">Ketentuan Input</h2>
             <p class="text-xs text-secondary leading-relaxed">
-                Setiap entri baru disimpan ke <code class="edudash-keycap">tbl_students</code> dan dihubungkan ke rombongan belajar serta akun login siswa.
+                Setiap entri siswa baru akan tersimpan ke direktori sekolah serta dihubungkan ke rombongan belajar dan akun login siswa.
             </p>
         </x-card>
     </div>

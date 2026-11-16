@@ -24,6 +24,7 @@
                 <div>
                     <label for="capacity" class="block text-xs font-medium text-ink mb-1.5">Kapasitas Siswa <span class="text-error font-bold">*</span></label>
                     <input type="number" id="capacity" name="capacity" value="{{ old('capacity', $schoolClass->capacity) }}" min="10" max="60" required class="edudash-input" />
+                    @error('capacity') <p class="text-[11px] font-medium text-error mt-1.5 pl-3">{{ $message }}</p> @enderror
                 </div>
             </div>
 
@@ -34,8 +35,8 @@
 
             <div class="bg-[#FEF2F2] border border-error-soft rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3">
                 <div>
-                    <p class="text-xs font-semibold text-[#B91C1C]">Arsipkan Kelas (Soft Delete)</p>
-                    <p class="text-[11px] text-muted mt-0.5">Pindahkan kelas ke Archive (<code class="text-ink">archived = 1</code>).</p>
+                    <p class="text-xs font-semibold text-[#B91C1C]">Arsipkan Kelas</p>
+                    <p class="text-[11px] text-muted mt-0.5">Pindahkan kelas ke arsip sistem tanpa menghapus riwayat siswa.</p>
                 </div>
                 <button type="button"
                         @click="openArchiveModal('{{ route('classes.archive', $schoolClass) }}', '{{ addslashes($schoolClass->name) }}', '{{ $schoolClass->code }}')"

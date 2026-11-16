@@ -18,7 +18,7 @@
         </div>
 
         <p class="text-xs text-secondary leading-relaxed mt-4">
-            Data ini akan dipindahkan ke arsip (<code class="font-mono text-ink">archived = 1</code>) dan disembunyikan dari daftar aktif. Anda dapat memulihkan data ini kapan saja melalui menu Arsip Data.
+            Data ini akan dipindahkan ke arsip dan disembunyikan dari daftar aktif. Anda dapat memulihkan data ini kapan saja melalui menu Arsip Data.
         </p>
 
         <form :action="archiveModal.action" method="POST" class="mt-6 flex items-center justify-end gap-2">

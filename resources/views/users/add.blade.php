@@ -1,5 +1,5 @@
 <x-layouts.app title="Tambah Pengguna" :breadcrumbs="[['label' => 'Data Pengguna', 'url' => route('users.index')], ['label' => 'Tambah Pengguna']]">
-    <x-page-header title="Tambah Data Pengguna" subtitle="Buat akun baru pada tbl_users dengan role admin, teacher, atau student." />
+    <x-page-header title="Tambah Data Pengguna" subtitle="Buat akun baru dengan peran admin, teacher, atau student." />
 
     <x-card class="max-w-[720px]">
         <form action="{{ route('users.store') }}" method="POST" enctype="multipart/form-data" class="space-y-5">
@@ -33,8 +33,8 @@
                 <div>
                     <label for="role" class="block text-xs font-medium text-ink mb-1.5">Role Hak Akses <span class="text-error font-bold">*</span></label>
                     <select id="role" name="role" required class="edudash-select">
-                        <option value="student" @selected(old('role') === 'student')>Student (Read-Only Data Pribadi)</option>
-                        <option value="teacher" @selected(old('role') === 'teacher')>Teacher (Read-Only Sistem)</option>
+                        <option value="student" @selected(old('role') === 'student')>Student (Akses Data Pribadi)</option>
+                        <option value="teacher" @selected(old('role') === 'teacher')>Teacher (Lihat Data & Absen Kelas)</option>
                         <option value="admin" @selected(old('role') === 'admin')>Admin (Full CRUD Akses)</option>
                     </select>
                 </div>

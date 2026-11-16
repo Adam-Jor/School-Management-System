@@ -57,7 +57,7 @@
                     Masuk ke Registri Akademik
                 </h1>
                 <p class="text-xs text-secondary mt-1">
-                    Gunakan email atau username yang terdaftar pada <code class="font-mono text-ink">tbl_users</code>
+                    Masuk menggunakan email atau username akun sekolah Anda
                 </p>
             </div>
 
@@ -136,13 +136,13 @@
                             @click="fillDemo('budi.santoso@sch.id')"
                             class="h-8 px-3 rounded-lg bg-sidebar border border-line text-ink text-xs font-medium hover:bg-raised transition-colors duration-150 text-left flex items-center justify-between">
                         <span>Teacher</span>
-                        <span class="font-mono text-[11px] text-muted">Read</span>
+                        <span class="font-mono text-[11px] text-muted">Absensi</span>
                     </button>
                     <button type="button"
                             @click="fillDemo('alya.putri@sch.id')"
                             class="h-8 px-3 rounded-lg bg-sidebar border border-line text-ink text-xs font-medium hover:bg-raised transition-colors duration-150 text-left flex items-center justify-between">
                         <span>Student</span>
-                        <span class="font-mono text-[11px] text-muted">Read</span>
+                        <span class="font-mono text-[11px] text-muted">Pribadi</span>
                     </button>
                 </div>
             </div>

@@ -123,7 +123,7 @@
                     <div>
                         <p class="text-xs font-medium text-[#B91C1C]">Arsipkan Siswa</p>
                         <p class="text-xs text-secondary mt-0.5">
-                            Sembunyikan siswa dari daftar aktif (<code class="font-mono text-ink">archived = 1</code>) tanpa menghapus riwayat nilai
+                            Sembunyikan siswa dari daftar aktif tanpa menghapus riwayat nilai dan absensinya
                         </p>
                     </div>
                     <button type="button"

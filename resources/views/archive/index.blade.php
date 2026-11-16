@@ -1,7 +1,7 @@
 <x-layouts.app title="Archive / Trash" :breadcrumbs="[['label' => 'Archive & Pemulihan Data']]">
     <x-page-header
-        title="Archive / Trash (Soft Delete)"
-        subtitle="Lihat dan pulihkan (restore) data yang telah di-archive (archived = 1) tanpa kehilangan riwayat relasi." />
+        title="Arsip & Pemulihan Data"
+        subtitle="Lihat dan pulihkan data yang telah diarsipkan tanpa kehilangan riwayat akademik." />
 
     <!-- Tab Selector Pill -->
     <div class="flex flex-wrap items-center gap-2 mb-6">

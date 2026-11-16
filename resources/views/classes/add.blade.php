@@ -1,5 +1,5 @@
 <x-layouts.app title="Tambah Kelas" :breadcrumbs="[['label' => 'Data Kelas', 'url' => route('classes.index')], ['label' => 'Tambah Kelas']]">
-    <x-page-header title="Tambah Data Kelas" subtitle="Tambahkan rombongan belajar baru ke tbl_classes." />
+    <x-page-header title="Tambah Data Kelas" subtitle="Tambahkan data rombongan belajar baru." />
 
     <x-card class="max-w-[720px]">
         <form action="{{ route('classes.store') }}" method="POST" class="space-y-5">

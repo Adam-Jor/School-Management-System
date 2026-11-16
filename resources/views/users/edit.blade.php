@@ -28,6 +28,7 @@
                 <div>
                     <label for="password" class="block text-xs font-medium text-ink mb-1.5">Kata Sandi Baru (Opsional)</label>
                     <input type="password" id="password" name="password" placeholder="Kosongkan jika tidak diubah…" class="edudash-input" />
+                    @error('password') <p class="text-[11px] font-medium text-error mt-1.5 pl-3">{{ $message }}</p> @enderror
                 </div>
 
                 <div>

@@ -1,5 +1,5 @@
 <x-layouts.app title="Tambah Mata Pelajaran" :breadcrumbs="[['label' => 'Mata Pelajaran', 'url' => route('subjects.index')], ['label' => 'Tambah Mapel']]">
-    <x-page-header title="Tambah Mata Pelajaran" subtitle="Tambahkan mata pelajaran baru ke tbl_subjects." />
+    <x-page-header title="Tambah Mata Pelajaran" subtitle="Tambahkan data mata pelajaran baru ke kurikulum sekolah." />
 
     <x-card class="max-w-[720px]">
         <form action="{{ route('subjects.store') }}" method="POST" class="space-y-5">
@@ -22,6 +22,7 @@
                 <div>
                     <label for="credit_hours" class="block text-xs font-medium text-ink mb-1.5">Beban Jam Pelajaran (JP) <span class="text-error font-bold">*</span></label>
                     <input type="number" id="credit_hours" name="credit_hours" value="{{ old('credit_hours', 4) }}" min="1" max="12" required class="edudash-input" />
+                    @error('credit_hours') <p class="text-[11px] font-medium text-error mt-1.5 pl-3">{{ $message }}</p> @enderror
                 </div>
             </div>
 

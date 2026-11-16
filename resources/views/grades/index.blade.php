@@ -3,7 +3,9 @@
 
     <x-page-header
         title="Nilai & Rapor Akademik"
-        subtitle="Input nilai siswa per mata pelajaran (tbl_grades) dan cetak rapor PDF per siswa." />
+        :subtitle="$user->isStudent()
+            ? 'Lihat rekap nilai akademik pribadi dan unduh rapor PDF resmi Anda.'
+            : 'Kelola nilai siswa per mata pelajaran dan cetak rapor PDF per siswa.'" />
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         <!-- Form Input Nilai (Admin Only) -->
@@ -19,11 +21,12 @@
                         <select name="student_id" required autofocus class="edudash-select text-xs">
                             <option value="">Pilih siswa…</option>
                             @foreach ($students as $st)
-                                <option value="{{ $st->id }}">
+                                <option value="{{ $st->id }}" @selected(old('student_id') == $st->id)>
                                     {{ $st->student_code }} — {{ $st->name }} ({{ $st->schoolClass?->name }})
                                 </option>
                             @endforeach
                         </select>
+                        @error('student_id') <p class="text-[11px] font-medium text-error mt-1">{{ $message }}</p> @enderror
                     </div>
 
                     <div>
@@ -31,22 +34,25 @@
                         <select name="subject_id" required class="edudash-select text-xs">
                             <option value="">Pilih mata pelajaran…</option>
                             @foreach ($subjects as $sub)
-                                <option value="{{ $sub->id }}">{{ $sub->code }} — {{ $sub->name }}</option>
+                                <option value="{{ $sub->id }}" @selected(old('subject_id') == $sub->id)>{{ $sub->code }} — {{ $sub->name }}</option>
                             @endforeach
                         </select>
+                        @error('subject_id') <p class="text-[11px] font-medium text-error mt-1">{{ $message }}</p> @enderror
                     </div>
 
                     <div>
                         <label class="block text-xs font-medium text-ink mb-1.5">Semester <span class="text-error font-bold">*</span></label>
                         <select name="semester" required class="edudash-select text-xs">
-                            <option value="Ganjil 2026/2027">Ganjil 2026/2027</option>
-                            <option value="Genap 2026/2027">Genap 2026/2027</option>
+                            <option value="Ganjil 2026/2027" @selected(old('semester', 'Ganjil 2026/2027') === 'Ganjil 2026/2027')>Ganjil 2026/2027</option>
+                            <option value="Genap 2026/2027" @selected(old('semester') === 'Genap 2026/2027')>Genap 2026/2027</option>
                         </select>
+                        @error('semester') <p class="text-[11px] font-medium text-error mt-1">{{ $message }}</p> @enderror
                     </div>
 
                     <div>
                         <label class="block text-xs font-medium text-ink mb-1.5">Nilai Akhir (0–100) <span class="text-error font-bold">*</span></label>
-                        <input type="number" name="score" min="0" max="100" step="0.01" placeholder="Contoh: 92" required class="edudash-input text-xs" />
+                        <input type="number" name="score" value="{{ old('score') }}" min="0" max="100" step="0.01" placeholder="Contoh: 92" required class="edudash-input text-xs" />
+                        @error('score') <p class="text-[11px] font-medium text-error mt-1">{{ $message }}</p> @enderror
                     </div>
 
                     <button type="submit" class="edudash-btn-primary w-full text-xs">
