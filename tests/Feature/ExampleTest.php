@@ -10,7 +10,7 @@ use App\Models\User;
 use Livewire\Livewire;
 use Spatie\Activitylog\Models\Activity;
 
-test('login form validation and authentication work on tbl_users', function () {
+test('login form validation and authentication work cleanly', function () {
     $this->get('/login')->assertStatus(200);
 
     $this->post('/login', ['email' => '', 'password' => ''])
