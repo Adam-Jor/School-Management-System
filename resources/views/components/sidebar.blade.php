@@ -15,7 +15,15 @@
                 </span>
                 <span class="text-[16px] font-semibold text-ink leading-none">Edudash</span>
             </a>
-            <span class="font-mono text-[11px] text-muted tabular-nums">2026/27</span>
+            <div class="flex items-center gap-2">
+                <span class="font-mono text-[11px] text-muted tabular-nums">2026/27</span>
+                <button type="button"
+                        @click="mobileSidebarOpen = false"
+                        aria-label="Tutup menu navigasi"
+                        class="lg:hidden size-7 rounded-lg border border-line bg-surface flex items-center justify-center text-muted hover:text-ink">
+                    <x-heroicon-o-x-mark class="size-4 stroke-[1.5]" />
+                </button>
+            </div>
         </div>
 
         <!-- 2. Kartu Sekolah / Tahun Ajaran -->

@@ -7,7 +7,7 @@
             ? 'Lihat rekap nilai akademik pribadi dan unduh rapor PDF resmi Anda.'
             : 'Kelola nilai siswa per mata pelajaran dan cetak rapor PDF per siswa.'" />
 
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-start">
         <!-- Form Input Nilai (Admin Only) -->
         @if ($user->isAdmin())
             <x-card class="lg:col-span-4">
@@ -64,16 +64,18 @@
 
         <!-- Daftar Nilai & Tombol Cetak Rapor PDF -->
         <x-card class="{{ $user->isAdmin() ? 'lg:col-span-8' : 'lg:col-span-12' }}">
-            <form action="{{ route('grades.index') }}" method="GET" class="flex flex-wrap items-center justify-between gap-3 mb-5">
-                <div class="flex flex-wrap items-center gap-3">
-                    <select name="class_id" onchange="this.form.submit()" class="h-9 px-4 rounded-lg bg-sidebar border border-line text-xs font-medium text-ink">
-                        <option value="">Semua Kelas</option>
-                        @foreach ($classes as $cls)
-                            <option value="{{ $cls->id }}" @selected((string) $classId === (string) $cls->id)>{{ $cls->name }}</option>
-                        @endforeach
-                    </select>
+            <form action="{{ route('grades.index') }}" method="GET" class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+                <div class="grid grid-cols-1 sm:flex sm:flex-wrap items-center gap-2.5 w-full sm:w-auto">
+                    @unless ($user->isStudent())
+                        <select name="class_id" onchange="this.form.submit()" class="h-10 sm:h-9 px-3.5 rounded-lg bg-sidebar border border-line text-xs font-medium text-ink w-full sm:w-auto">
+                            <option value="">Semua Kelas</option>
+                            @foreach ($classes as $cls)
+                                <option value="{{ $cls->id }}" @selected((string) $classId === (string) $cls->id)>{{ $cls->name }}</option>
+                            @endforeach
+                        </select>
+                    @endunless
 
-                    <select name="subject_id" onchange="this.form.submit()" class="h-9 px-4 rounded-lg bg-sidebar border border-line text-xs font-medium text-ink">
+                    <select name="subject_id" onchange="this.form.submit()" class="h-10 sm:h-9 px-3.5 rounded-lg bg-sidebar border border-line text-xs font-medium text-ink w-full sm:w-auto">
                         <option value="">Semua Mata Pelajaran</option>
                         @foreach ($subjects as $sub)
                             <option value="{{ $sub->id }}" @selected((string) $subjectId === (string) $sub->id)>{{ $sub->name }}</option>
@@ -81,12 +83,49 @@
                     </select>
                 </div>
 
-                <span class="px-3.5 py-1 rounded-md bg-raised border border-line font-mono text-secondary text-xs font-semibold">
+                <span class="px-3.5 py-1.5 rounded-md bg-raised border border-line font-mono text-secondary text-xs font-semibold self-start sm:self-auto">
                     Total: {{ format_number($grades->total()) }} Data Nilai
                 </span>
             </form>
 
-            <div class="overflow-x-auto">
+            <!-- Mobile-First Grade Cards (< md) -->
+            <div class="md:hidden space-y-3">
+                @forelse ($grades as $idx => $grade)
+                    <div class="rounded-xl border border-line bg-sidebar p-3.5 space-y-3">
+                        <div class="flex items-start justify-between gap-2">
+                            <div class="min-w-0">
+                                <p class="text-sm font-semibold text-ink truncate">{{ $grade->student?->name ?? '-' }}</p>
+                                <p class="text-xs text-muted mt-0.5">{{ $grade->student?->student_code }} · {{ $grade->student?->schoolClass?->name ?? '-' }}</p>
+                            </div>
+                            <div class="flex items-center gap-2 shrink-0">
+                                <span class="font-mono text-lg font-bold text-ink tabular-nums">{{ format_number($grade->score) }}</span>
+                                <span class="px-2.5 py-0.5 rounded-full bg-success-soft text-[#15803D] text-xs font-bold">
+                                    {{ $grade->predicate }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="pt-2.5 border-t border-line flex items-center justify-between gap-2 text-xs">
+                            <div class="min-w-0">
+                                <p class="font-medium text-ink truncate">{{ $grade->subject?->code }} · {{ $grade->subject?->name }}</p>
+                                <p class="text-muted text-[11px]">{{ $grade->semester }}</p>
+                            </div>
+                            @if ($grade->student)
+                                <a href="{{ route('grades.report.pdf', $grade->student) }}"
+                                   class="h-8 px-3 rounded-lg bg-surface border border-line font-mono text-ink text-xs font-semibold hover:bg-primary hover:text-white transition inline-flex items-center gap-1.5 shrink-0">
+                                    <x-heroicon-o-document-arrow-down class="size-3.5" />
+                                    <span>Rapor PDF</span>
+                                </a>
+                            @endif
+                        </div>
+                    </div>
+                @empty
+                    <x-empty-state title="Belum ada data nilai" />
+                @endforelse
+            </div>
+
+            <!-- Desktop Table (md+) -->
+            <div class="hidden md:block overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr class="border-b border-line text-xs font-medium text-muted">
@@ -142,7 +181,7 @@
                 </table>
             </div>
 
-            <div class="mt-4 pt-3 border-t border-line flex items-center justify-between text-xs text-muted">
+            <div class="mt-4 pt-3 border-t border-line flex flex-wrap items-center justify-between gap-2 text-xs text-muted">
                 <span>Menampilkan {{ format_number($grades->firstItem() ?? 0) }}–{{ format_number($grades->lastItem() ?? 0) }} dari {{ format_number($grades->total()) }} nilai</span>
                 <div>{{ $grades->links() }}</div>
             </div>

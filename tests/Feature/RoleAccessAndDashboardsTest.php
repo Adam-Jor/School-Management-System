@@ -98,6 +98,7 @@ test('admin, teacher, and student each receive separate dedicated dashboards and
         ->assertStatus(200)
         ->assertViewIs('dashboard.teacher')
         ->assertSee('Ruang Mengajar')
+        ->assertSee('Navigasi bawah mobile')
         ->assertSee('10 IPA 1')
         ->assertDontSee('10 IPA 2');
     $this->actingAs($data['teacherUser'])->get('/teacher/dashboard')->assertStatus(200);
@@ -109,6 +110,7 @@ test('admin, teacher, and student each receive separate dedicated dashboards and
         ->assertStatus(200)
         ->assertViewIs('dashboard.student')
         ->assertSee('Portal Akademik Siswa')
+        ->assertSee('Navigasi bawah mobile')
         ->assertSee('STD-901')
         ->assertDontSee('STD-902');
     $this->actingAs($data['studentUser'])->get('/student/dashboard')->assertStatus(200);

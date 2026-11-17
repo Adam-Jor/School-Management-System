@@ -57,12 +57,15 @@
             <!-- Topbar -->
             <x-topbar :breadcrumbs="$breadcrumbs" />
 
-            <!-- Page Content -->
-            <main class="flex-1 p-6 lg:p-8 max-w-[1440px] w-full mx-auto">
+            <!-- Page Content (pb-24 on mobile for sticky bottom navigation bar) -->
+            <main class="flex-1 px-4 pt-4 pb-24 sm:px-6 sm:pt-6 sm:pb-24 lg:p-8 max-w-[1440px] w-full mx-auto">
                 {{ $slot }}
             </main>
         </div>
     </div>
+
+    <!-- Mobile-First Sticky Bottom Navigation Bar -->
+    <x-mobile-bottom-nav />
 
     <!-- Global Archive Confirmation Modal -->
     <x-modal-confirm />

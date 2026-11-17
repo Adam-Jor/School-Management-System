@@ -1,8 +1,8 @@
 @php $user = auth()->user(); @endphp
 
 <x-card>
-    <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
-        <div class="relative flex-1 min-w-[240px] max-w-sm">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+        <div class="relative w-full sm:flex-1 sm:min-w-[240px] sm:max-w-sm">
             <x-heroicon-o-magnifying-glass class="size-4 stroke-[1.5] text-muted absolute left-3 top-3 pointer-events-none" />
             <input type="search"
                    wire:model.live.debounce.300ms="search"
@@ -20,7 +20,41 @@
         <span>Memuat mata pelajaran...</span>
     </div>
 
-    <div class="overflow-x-auto" wire:loading.class="opacity-60">
+    <!-- Mobile-First Subject Cards (< md) -->
+    <div class="md:hidden space-y-2.5" wire:loading.class="opacity-60">
+        @forelse ($subjects as $idx => $sub)
+            <div wire:key="subject-card-{{ $sub->id }}" class="rounded-xl border border-line bg-sidebar p-3.5 space-y-2.5">
+                <div class="flex items-center justify-between gap-2">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <span class="edudash-keycap">{{ $sub->code }}</span>
+                        <h3 class="text-sm font-semibold text-ink truncate">{{ $sub->name }}</h3>
+                    </div>
+                    <span class="font-mono text-xs text-ink tabular-nums shrink-0">
+                        {{ format_number($sub->credit_hours) }} JP · <span class="text-primary">{{ format_number($sub->teachers_count) }} guru</span>
+                    </span>
+                </div>
+                <p class="text-xs text-secondary">{{ $sub->description ?: 'Kurikulum mata pelajaran aktif' }}</p>
+                @if ($user?->isAdmin())
+                    <div class="pt-2 border-t border-line flex items-center justify-end gap-2">
+                        <a href="{{ route('subjects.edit', $sub) }}" wire:navigate
+                           class="h-8 px-3 inline-flex items-center rounded-lg bg-surface border border-line text-ink text-xs font-medium">
+                            Edit
+                        </a>
+                        <button type="button"
+                                @click="openArchiveModal('{{ route('subjects.archive', $sub) }}', '{{ addslashes($sub->name) }}', '{{ $sub->code }}')"
+                                class="h-8 px-3 inline-flex items-center rounded-lg bg-error-soft text-[#B91C1C] text-xs font-medium">
+                            Arsip
+                        </button>
+                    </div>
+                @endif
+            </div>
+        @empty
+            <x-empty-state title="Data mata pelajaran tidak ditemukan" />
+        @endforelse
+    </div>
+
+    <!-- Desktop Table (md+) -->
+    <div class="hidden md:block overflow-x-auto" wire:loading.class="opacity-60">
         <table class="w-full text-left border-collapse">
             <thead>
                 <tr class="border-b border-line text-xs font-normal text-muted">

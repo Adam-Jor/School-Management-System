@@ -8,11 +8,11 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
-<body class="bg-page text-ink min-h-screen flex items-center justify-center p-6">
+<body class="bg-page text-ink min-h-screen flex items-center justify-center p-4 sm:p-6">
 
     <div class="max-w-[960px] w-full grid grid-cols-1 lg:grid-cols-12 bg-surface rounded-2xl shadow-card border border-line overflow-hidden">
-        <!-- Left Product Preview Column (Asymmetric Split) -->
-        <div class="lg:col-span-5 bg-sidebar border-b lg:border-b-0 lg:border-r border-line p-8 flex flex-col justify-between">
+        <!-- Left Product Preview Column (Order 2 on mobile so Login Form is shown first) -->
+        <div class="order-2 lg:order-1 lg:col-span-5 bg-sidebar border-t lg:border-t-0 lg:border-r border-line p-5 sm:p-8 flex flex-col justify-between">
             <div>
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2.5">
@@ -42,8 +42,8 @@
             </div>
         </div>
 
-        <!-- Right Login Form Column -->
-        <div class="lg:col-span-7 p-8 lg:p-10 flex flex-col justify-center"
+        <!-- Right Login Form Column (Order 1 on mobile) -->
+        <div class="order-1 lg:order-2 lg:col-span-7 p-5 sm:p-8 lg:p-10 flex flex-col justify-center"
              x-data="{
                  fillDemo(email) {
                      this.$refs.emailInput.value = email;
@@ -125,7 +125,7 @@
                 <p class="text-xs text-muted mb-2.5">
                     Akun pengujian peran (klik untuk mengisi kredensial)
                 </p>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                <div class="grid grid-cols-3 gap-2">
                     <button type="button"
                             @click="fillDemo('admin@edudash.sch.id')"
                             class="h-8 px-3 rounded-lg bg-sidebar border border-line text-ink text-xs font-medium hover:bg-raised transition-colors duration-150 text-left flex items-center justify-between">

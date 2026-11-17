@@ -12,13 +12,13 @@
     };
 @endphp
 
-<div class="px-5 py-1 first:pl-1 last:pr-1">
-    <p class="text-xs font-normal text-muted">{{ $label }}</p>
-    <p class="text-[28px] lg:text-[32px] font-medium text-ink leading-none mt-2 tabular-nums">
+<div class="px-2 sm:px-4 lg:px-5 py-1.5 sm:py-1 lg:first:pl-1 lg:last:pr-1">
+    <p class="text-[11px] sm:text-xs font-normal text-muted truncate">{{ $label }}</p>
+    <p class="text-2xl sm:text-[28px] lg:text-[32px] font-medium text-ink leading-none mt-1.5 sm:mt-2 tabular-nums">
         {{ format_number($value) }}
     </p>
     @if ($delta)
-        <p class="text-xs font-normal {{ $deltaColor }} mt-2 tabular-nums">
+        <p class="text-[11px] sm:text-xs font-normal {{ $deltaColor }} mt-1.5 sm:mt-2 tabular-nums line-clamp-1">
             {{ $delta }}
         </p>
     @endif
