@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Attendance;
 use App\Models\Grade;
+use App\Models\Schedule;
 use App\Models\SchoolClass;
 use App\Models\Student;
 use App\Models\Subject;
@@ -206,12 +207,24 @@ class DashboardController extends Controller
             ]
             : null;
 
+        $daysIndo = [1 => 'Senin', 2 => 'Selasa', 3 => 'Rabu', 4 => 'Kamis', 5 => 'Jumat', 6 => 'Sabtu', 7 => 'Minggu'];
+        $todayName = $daysIndo[now()->dayOfWeekIso] ?? 'Senin';
+        $todaySchedules = $teacher
+            ? Schedule::with(['schoolClass', 'subject'])
+                ->where('teacher_id', $teacher->id)
+                ->where('day_of_week', $todayName)
+                ->orderBy('start_time')
+                ->get()
+            : collect();
+
         return view('dashboard.teacher', compact(
             'teacher',
             'taughtClasses',
             'classStudents',
             'todayAttendanceMap',
             'teacherStats',
+            'todaySchedules',
+            'todayName',
             'search',
             'globalResults',
             'globalQuery'
@@ -267,6 +280,16 @@ class DashboardController extends Controller
             ]
             : null;
 
+        $daysIndo = [1 => 'Senin', 2 => 'Selasa', 3 => 'Rabu', 4 => 'Kamis', 5 => 'Jumat', 6 => 'Sabtu', 7 => 'Minggu'];
+        $todayName = $daysIndo[now()->dayOfWeekIso] ?? 'Senin';
+        $todaySchedules = $student && $student->class_id
+            ? Schedule::with(['subject', 'teacher'])
+                ->where('class_id', $student->class_id)
+                ->where('day_of_week', $todayName)
+                ->orderBy('start_time')
+                ->get()
+            : collect();
+
         return view('dashboard.student', compact(
             'student',
             'attendanceSummary',
@@ -274,6 +297,8 @@ class DashboardController extends Controller
             'grades',
             'averageScore',
             'totalClasses',
+            'todaySchedules',
+            'todayName',
             'globalResults',
             'globalQuery'
         ));

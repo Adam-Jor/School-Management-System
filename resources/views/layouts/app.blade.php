@@ -9,6 +9,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $title }} — EDUDASH School Management System</title>
+
+    <!-- Theme Initialization Script (Prevent Flash) -->
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                document.documentElement.setAttribute('data-theme', savedTheme);
+            } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.setAttribute('data-theme', 'edudash-dark');
+            }
+        })();
+    </script>
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
@@ -21,25 +34,14 @@
           }
       }">
 
-    <!-- Toast Notification -->
-    @if (session('toast'))
-        <div x-data="{ show: true }"
-             x-init="setTimeout(() => show = false, 3500)"
-             x-show="show"
-             x-transition.opacity.duration.150ms
-             class="fixed top-4 right-4 z-50">
-            <div class="bg-surface border border-line rounded-xl px-4 py-3 shadow-card flex items-center gap-3">
-                <span class="size-2 rounded-full bg-success shrink-0"></span>
-                <span class="text-xs font-medium text-ink">{{ rtrim(session('toast'), '!.') }}</span>
-                <button type="button"
-                        @click="show = false"
-                        aria-label="Tutup notifikasi"
-                        class="text-muted hover:text-ink transition-colors duration-150">
-                    <x-heroicon-o-x-mark class="size-4 stroke-[1.5]" />
-                </button>
-            </div>
-        </div>
-    @endif
+    <!-- Unified Multi-Variant Toast Notification & Undo System -->
+    <x-toast-container />
+
+    <!-- Command Palette Interactive (Ctrl+K / Cmd+K) -->
+    <x-command-palette />
+
+    <!-- Slide-Over Drawer & Mobile Bottom Sheet -->
+    <x-drawer />
 
     <div class="flex min-h-screen">
         <!-- Mobile Sidebar Backdrop -->
@@ -69,6 +71,20 @@
 
     <!-- Global Archive Confirmation Modal -->
     <x-modal-confirm />
+
+    <script>
+        window.toggleTheme = function() {
+            const current = document.documentElement.getAttribute('data-theme') || 'edudash';
+            const next = current === 'edudash-dark' ? 'edudash' : 'edudash-dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            window.dispatchEvent(new CustomEvent('theme-changed', { detail: { theme: next } }));
+        };
+
+        window.openDrawer = function(detail) {
+            window.dispatchEvent(new CustomEvent('open-drawer', { detail }));
+        };
+    </script>
 
     @livewireScripts
     @stack('scripts')

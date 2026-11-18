@@ -59,4 +59,9 @@ class SchoolClass extends Model
         return $this->belongsToMany(Teacher::class, 'tbl_class_teacher', 'class_id', 'teacher_id')
             ->withTimestamps();
     }
+
+    public function schedules(): HasMany
+    {
+        return $this->hasMany(Schedule::class, 'class_id');
+    }
 }

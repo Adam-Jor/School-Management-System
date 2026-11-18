@@ -1,12 +1,15 @@
 <?php
 
+use App\Http\Controllers\AcademicPeriodController;
 use App\Http\Controllers\ArchiveController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClassController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DesignSystemController;
 use App\Http\Controllers\GradeController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\TeacherController;
@@ -56,12 +59,27 @@ Route::middleware('auth')->group(function () {
         ->middleware('role:admin,teacher')
         ->name('attendances.store');
 
-    // Nilai & Rapor (Admin: Full, Teacher: View, Student: data & rapor sendiri)
+    // Nilai & Rapor (Admin & Teacher: Input/Update, Student: data & rapor sendiri)
     Route::get('/grades', [GradeController::class, 'index'])->name('grades.index');
+    Route::post('/grades', [GradeController::class, 'store'])
+        ->middleware('role:admin,teacher')
+        ->name('grades.store');
     Route::get('/grades/report/{student:slug}/pdf', [GradeController::class, 'reportPdf'])->name('grades.report.pdf');
 
-    // Admin-only CRUD Routes (Users, Teachers, Students CRUD, Classes CRUD, Subjects CRUD, Grades Write, Archive)
+    // Jadwal Pelajaran Mingguan (Timetable)
+    Route::get('/schedules', [ScheduleController::class, 'index'])->name('schedules.index');
+
+    // Academic Period Switcher
+    Route::post('/academic-periods/switch', [AcademicPeriodController::class, 'switch'])->name('academic-periods.switch');
+
+    // Living Styleguide & Design System
+    Route::get('/design-system', [DesignSystemController::class, 'index'])->name('design-system.index');
+
+    // Admin-only CRUD Routes (Users, Teachers, Students CRUD, Classes CRUD, Subjects CRUD, Schedules Admin, Archive)
     Route::middleware('role:admin')->group(function () {
+        // Schedules Admin
+        Route::post('/schedules', [ScheduleController::class, 'store'])->name('schedules.store');
+        Route::patch('/schedules/{schedule}/archive', [ScheduleController::class, 'archive'])->name('schedules.archive');
         // Students CRUD
         Route::get('/students/add', [StudentController::class, 'create'])->name('students.create');
         Route::post('/students', [StudentController::class, 'store'])->name('students.store');
@@ -93,9 +111,6 @@ Route::middleware('auth')->group(function () {
         Route::put('/subjects/{subject:slug}', [SubjectController::class, 'update'])->name('subjects.update');
         Route::patch('/subjects/{subject:slug}/archive', [SubjectController::class, 'archive'])->name('subjects.archive');
 
-        // Grades Write
-        Route::post('/grades', [GradeController::class, 'store'])->name('grades.store');
-
         // Users CRUD (Admin: CRUD, Teacher: -, Student: -)
         Route::get('/users', [UserController::class, 'index'])->name('users.index');
         Route::get('/users/add', [UserController::class, 'create'])->name('users.create');
@@ -108,4 +123,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/archive', [ArchiveController::class, 'index'])->name('archive.index');
         Route::patch('/archive/{type}/{id}/restore', [ArchiveController::class, 'restore'])->name('archive.restore');
     });
+
+    // Detail Kelas Interaktif (setelah /classes/add agar tidak tertabrak route model binding)
+    Route::get('/classes/{schoolClass:slug}', [ClassController::class, 'show'])->name('classes.show');
 });

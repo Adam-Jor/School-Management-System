@@ -21,12 +21,17 @@ class GradeController extends Controller
     {
         $user = $request->user();
         $isStudent = $user->isStudent();
+        $isTeacher = $user->isTeacher();
+        $teacher = $isTeacher ? $user->teacher?->load(['schoolClasses', 'subject']) : null;
         $ownStudent = $isStudent ? $user->student?->load('schoolClass') : null;
 
         $classes = $isStudent
             ? ($ownStudent?->schoolClass ? collect([$ownStudent->schoolClass]) : collect())
-            : SchoolClass::orderBy('name')->get();
-        $subjects = Subject::orderBy('code')->get();
+            : ($isTeacher && $teacher ? $teacher->schoolClasses : SchoolClass::orderBy('name')->get());
+
+        $subjects = $isTeacher && $teacher && $teacher->subject_id
+            ? Subject::where('id', $teacher->subject_id)->get()
+            : Subject::orderBy('code')->get();
 
         $classId = $isStudent ? (string) ($ownStudent?->class_id ?? '') : (string) $request->query('class_id', '');
         $subjectId = (string) $request->query('subject_id', '');
@@ -35,6 +40,17 @@ class GradeController extends Controller
         $grades = Grade::query()
             ->with(['student.schoolClass', 'subject'])
             ->when($isStudent, fn ($q) => $q->where('student_id', $ownStudent?->id ?? 0))
+            ->when($isTeacher && $teacher, function ($q) use ($teacher) {
+                $taughtClassIds = $teacher->schoolClasses->pluck('id');
+                $q->where(function ($sub) use ($taughtClassIds, $teacher) {
+                    if ($taughtClassIds->isNotEmpty()) {
+                        $sub->whereHas('student', fn ($s) => $s->whereIn('class_id', $taughtClassIds));
+                    }
+                    if ($teacher->subject_id) {
+                        $sub->orWhere('subject_id', $teacher->subject_id);
+                    }
+                });
+            })
             ->when(! $isStudent && $classId !== '', function ($q) use ($classId) {
                 $q->whereHas('student', fn ($sub) => $sub->where('class_id', $classId));
             })
@@ -46,7 +62,9 @@ class GradeController extends Controller
 
         $students = $isStudent
             ? ($ownStudent ? collect([$ownStudent]) : collect())
-            : Student::with('schoolClass')->orderBy('name')->get();
+            : ($isTeacher && $teacher
+                ? Student::with('schoolClass')->whereIn('class_id', $teacher->schoolClasses->pluck('id'))->orderBy('name')->get()
+                : Student::with('schoolClass')->orderBy('name')->get());
 
         return view('grades.index', compact(
             'grades',

@@ -19,6 +19,92 @@ class StudentsTable extends Component
     #[Url(except: '')]
     public string $status = '';
 
+    public array $selected = [];
+
+    public bool $selectAll = false;
+
+    public string $bulkTargetClassId = '';
+
+    public string $bulkNewStatus = 'Aktif';
+
+    public function updatedSelectAll($value): void
+    {
+        if ($value) {
+            $authUser = auth()->user();
+            if ($authUser?->isAdmin()) {
+                $this->selected = Student::pluck('id')->map(fn ($id) => (string) $id)->toArray();
+            }
+        } else {
+            $this->selected = [];
+        }
+    }
+
+    public function clearSelection(): void
+    {
+        $this->selected = [];
+        $this->selectAll = false;
+    }
+
+    public function bulkPromote(): void
+    {
+        abort_unless(auth()->user()?->isAdmin(), 403);
+
+        if (empty($this->selected) || empty($this->bulkTargetClassId)) {
+            return;
+        }
+
+        $count = count($this->selected);
+        Student::whereIn('id', $this->selected)->update(['class_id' => $this->bulkTargetClassId]);
+
+        $targetClass = SchoolClass::find($this->bulkTargetClassId);
+        $className = $targetClass?->name ?? 'kelas tujuan';
+
+        $this->clearSelection();
+        $this->dispatch('notify', [
+            'message' => "{$count} siswa berhasil dipindahkan ke {$className}",
+            'type' => 'success',
+        ]);
+    }
+
+    public function bulkUpdateStatus(): void
+    {
+        abort_unless(auth()->user()?->isAdmin(), 403);
+
+        if (empty($this->selected)) {
+            return;
+        }
+
+        $count = count($this->selected);
+        Student::whereIn('id', $this->selected)->update(['status' => $this->bulkNewStatus]);
+
+        $this->clearSelection();
+        $this->dispatch('notify', [
+            'message' => "Status {$count} siswa berhasil diubah menjadi {$this->bulkNewStatus}",
+            'type' => 'success',
+        ]);
+    }
+
+    public function bulkArchive(): void
+    {
+        abort_unless(auth()->user()?->isAdmin(), 403);
+
+        if (empty($this->selected)) {
+            return;
+        }
+
+        $count = count($this->selected);
+        $students = Student::whereIn('id', $this->selected)->get();
+        foreach ($students as $student) {
+            $student->archive();
+        }
+
+        $this->clearSelection();
+        $this->dispatch('notify', [
+            'message' => "{$count} siswa berhasil dipindahkan ke arsip",
+            'type' => 'warning',
+        ]);
+    }
+
     public function updatingClassId(): void
     {
         $this->resetPage();

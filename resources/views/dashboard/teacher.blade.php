@@ -89,6 +89,45 @@
         </div>
     </x-card>
 
+    <!-- Jadwal Mengajar Hari Ini -->
+    <x-card class="mb-4 sm:mb-6">
+        <div class="flex items-center justify-between pb-3 border-b border-line mb-3">
+            <div class="flex items-center gap-2">
+                <span class="size-2 rounded-full bg-primary"></span>
+                <h2 class="text-sm font-semibold text-ink">Jadwal Mengajar Hari Ini ({{ $todayName }})</h2>
+            </div>
+            <a href="{{ route('schedules.index') }}" wire:navigate class="text-xs font-medium text-primary hover:underline">
+                Lihat Jadwal Lengkap →
+            </a>
+        </div>
+
+        @if ($todaySchedules->count() > 0)
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                @foreach ($todaySchedules as $sch)
+                    @php $isOngoing = $sch->isOngoingNow(); @endphp
+                    <div class="p-3.5 rounded-xl border {{ $isOngoing ? 'border-primary ring-2 ring-primary/10 bg-primary-soft/10' : 'border-line bg-sidebar' }} flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between gap-2 mb-1.5">
+                                <span class="edudash-keycap">{{ substr($sch->start_time, 0, 5) }} - {{ substr($sch->end_time, 0, 5) }}</span>
+                                @if ($isOngoing)
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800 animate-pulse">Sedang Berlangsung</span>
+                                @else
+                                    <span class="text-xs font-semibold text-primary">{{ $sch->schoolClass?->name }}</span>
+                                @endif
+                            </div>
+                            <p class="text-xs font-medium text-ink">{{ $sch->subject?->name }}</p>
+                            @if ($sch->room)
+                                <p class="text-[11px] text-muted mt-1">Ruang: {{ $sch->room }}</p>
+                            @endif
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        @else
+            <p class="text-xs text-muted py-2">Tidak ada jadwal mengajar pada hari {{ $todayName }}. Nikmati hari persiapan Anda!</p>
+        @endif
+    </x-card>
+
     <!-- Middle Row: Kelas yang Diajar (Prioritas Utama di Mobile) + Kartu Profil Pengajar -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 mb-4 sm:mb-6 items-start">
         <x-card class="lg:col-span-8">

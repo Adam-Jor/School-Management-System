@@ -8,8 +8,8 @@
             : 'Kelola nilai siswa per mata pelajaran dan cetak rapor PDF per siswa.'" />
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-start">
-        <!-- Form Input Nilai (Admin Only) -->
-        @if ($user->isAdmin())
+        <!-- Form Input Nilai (Admin & Teacher) -->
+        @if ($user->isAdmin() || $user->isTeacher())
             <x-card class="lg:col-span-4">
                 <h2 class="text-base font-semibold text-ink mb-1">Input / Perbarui Nilai</h2>
                 <p class="text-xs text-muted mb-4">Predikat (A/B/C/D) dihitung otomatis dari nilai angka.</p>
@@ -63,7 +63,7 @@
         @endif
 
         <!-- Daftar Nilai & Tombol Cetak Rapor PDF -->
-        <x-card class="{{ $user->isAdmin() ? 'lg:col-span-8' : 'lg:col-span-12' }}">
+        <x-card class="{{ ($user->isAdmin() || $user->isTeacher()) ? 'lg:col-span-8' : 'lg:col-span-12' }}">
             <form action="{{ route('grades.index') }}" method="GET" class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
                 <div class="grid grid-cols-1 sm:flex sm:flex-wrap items-center gap-2.5 w-full sm:w-auto">
                     @unless ($user->isStudent())

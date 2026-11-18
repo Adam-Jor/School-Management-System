@@ -156,6 +156,30 @@
                     </a>
                 </li>
 
+                <li>
+                    <a href="{{ route('schedules.index') }}" wire:navigate
+                       class="h-9 flex items-center justify-between px-2.5 rounded-lg text-sm transition-colors duration-150 {{ request()->routeIs('schedules.*') ? 'bg-raised text-ink font-medium border border-line/80' : 'text-secondary font-normal hover:bg-raised/60 hover:text-ink' }}">
+                        <span class="flex items-center gap-2.5">
+                            <span class="w-[18px] flex items-center justify-center shrink-0">
+                                <x-heroicon-o-clock class="size-[18px] stroke-[1.5] {{ request()->routeIs('schedules.*') ? 'text-primary' : 'text-muted' }}" />
+                            </span>
+                            <span>Jadwal Pelajaran</span>
+                        </span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="{{ route('design-system.index') }}" wire:navigate
+                       class="h-9 flex items-center justify-between px-2.5 rounded-lg text-sm transition-colors duration-150 {{ request()->routeIs('design-system.*') ? 'bg-raised text-ink font-medium border border-line/80' : 'text-secondary font-normal hover:bg-raised/60 hover:text-ink' }}">
+                        <span class="flex items-center gap-2.5">
+                            <span class="w-[18px] flex items-center justify-center shrink-0">
+                                <x-heroicon-o-swatch class="size-[18px] stroke-[1.5] {{ request()->routeIs('design-system.*') ? 'text-primary' : 'text-muted' }}" />
+                            </span>
+                            <span>Design System</span>
+                        </span>
+                    </a>
+                </li>
+
                 @if ($user?->isAdmin())
                     <li>
                         <a href="{{ route('archive.index') }}" wire:navigate

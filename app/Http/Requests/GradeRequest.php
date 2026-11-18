@@ -2,13 +2,45 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Student;
 use Illuminate\Foundation\Http\FormRequest;
 
 class GradeRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()?->isAdmin() ?? false;
+        $user = $this->user();
+        if (! $user) {
+            return false;
+        }
+
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        if ($user->isTeacher()) {
+            $teacher = $user->teacher;
+            if (! $teacher) {
+                return false;
+            }
+
+            $studentId = $this->input('student_id');
+            if (! $studentId) {
+                return false;
+            }
+
+            $student = Student::find($studentId);
+            if (! $student) {
+                return false;
+            }
+
+            $teachesClass = $teacher->schoolClasses()->where('tbl_classes.id', $student->class_id)->exists();
+            $matchesSubject = $teacher->subject_id && $this->input('subject_id') && ($teacher->subject_id == $this->input('subject_id'));
+
+            return $teachesClass || $matchesSubject;
+        }
+
+        return false;
     }
 
     public function rules(): array

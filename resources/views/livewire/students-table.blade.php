@@ -78,9 +78,12 @@
     <!-- Mobile-First Student Cards (< md) -->
     <div class="md:hidden space-y-3" wire:loading.class="opacity-60">
         @forelse ($students as $idx => $student)
-            <div wire:key="student-card-{{ $student->id }}" class="rounded-xl border border-line bg-sidebar p-3.5 space-y-3">
+            <div wire:key="student-card-{{ $student->id }}" class="rounded-xl border border-line bg-sidebar p-3.5 space-y-3 {{ in_array((string) $student->id, $selected) ? 'ring-2 ring-primary/30 bg-primary-soft/10' : '' }}">
                 <div class="flex items-start justify-between gap-2.5">
                     <div class="flex items-center gap-2.5 min-w-0">
+                        @if ($user?->isAdmin())
+                            <input type="checkbox" wire:model.live="selected" value="{{ (string) $student->id }}" aria-label="Pilih siswa" class="rounded border-line text-primary focus:ring-primary size-4 shrink-0" />
+                        @endif
                         <x-avatar :name="$student->name" :src="$student->img_url" />
                         <div class="min-w-0">
                             <p class="text-sm font-medium text-ink truncate">{{ $student->name }}</p>
@@ -130,6 +133,11 @@
         <table class="w-full text-left border-collapse">
             <thead>
                 <tr class="border-b border-line text-xs font-normal text-muted">
+                    @if ($user?->isAdmin())
+                        <th class="py-3 px-3 w-8">
+                            <input type="checkbox" wire:model.live="selectAll" aria-label="Pilih semua siswa" class="rounded border-line text-primary focus:ring-primary size-4" />
+                        </th>
+                    @endif
                     <th class="py-3 pl-2 text-right w-10">No</th>
                     <th class="py-3 px-3">
                         <button type="button" wire:click="sortBy('student_code')" class="inline-flex items-center gap-1 hover:text-ink">
@@ -179,7 +187,12 @@
             </thead>
             <tbody class="divide-y divide-line text-sm">
                 @forelse ($students as $idx => $student)
-                    <tr wire:key="student-row-{{ $student->id }}" class="group hover:bg-sidebar transition-colors duration-150">
+                    <tr wire:key="student-row-{{ $student->id }}" class="group hover:bg-sidebar transition-colors duration-150 {{ in_array((string) $student->id, $selected) ? 'bg-primary-soft/30' : '' }}">
+                        @if ($user?->isAdmin())
+                            <td class="py-3 px-3">
+                                <input type="checkbox" wire:model.live="selected" value="{{ (string) $student->id }}" aria-label="Pilih siswa" class="rounded border-line text-primary focus:ring-primary size-4" />
+                            </td>
+                        @endif
                         <td class="py-3 pl-2 text-right font-mono text-xs text-muted tabular-nums">
                             {{ format_number(($students->currentPage() - 1) * $students->perPage() + $idx + 1) }}
                         </td>
@@ -227,7 +240,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="8">
+                        <td colspan="{{ $user?->isAdmin() ? '9' : '8' }}">
                             <x-empty-state
                                 title="Data siswa tidak ditemukan"
                                 description="Tidak ada siswa yang cocok dengan filter pencarian Anda" />
@@ -248,4 +261,51 @@
             {{ $students->links() }}
         </div>
     </div>
+
+    <!-- Floating Bulk Actions Bar (Admin Only) -->
+    @if ($user?->isAdmin() && count($selected) > 0)
+        <div class="fixed bottom-20 sm:bottom-6 inset-x-4 sm:inset-x-auto sm:right-6 sm:left-auto bg-ink text-white rounded-2xl p-3.5 shadow-2xl z-40 border border-white/10 flex flex-wrap items-center justify-between gap-3 animate-fade-in max-w-xl">
+            <div class="flex items-center gap-2">
+                <span class="size-6 rounded-full bg-primary flex items-center justify-center font-mono text-xs font-bold">{{ count($selected) }}</span>
+                <span class="text-xs font-medium">siswa dipilih</span>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2">
+                <!-- Pindah Rombel -->
+                <div class="flex items-center gap-1">
+                    <select wire:model="bulkTargetClassId" class="h-8 px-2 rounded-lg bg-surface text-ink text-xs border-0">
+                        <option value="">Pindah ke rombel...</option>
+                        @foreach ($classes as $cls)
+                            <option value="{{ $cls->id }}">{{ $cls->name }}</option>
+                        @endforeach
+                    </select>
+                    <button type="button" wire:click="bulkPromote" class="h-8 px-2.5 rounded-lg bg-primary hover:bg-primary/90 text-white text-xs font-medium transition">
+                        Pindah
+                    </button>
+                </div>
+
+                <!-- Ubah Status -->
+                <div class="flex items-center gap-1">
+                    <select wire:model="bulkNewStatus" class="h-8 px-2 rounded-lg bg-surface text-ink text-xs border-0">
+                        <option value="Aktif">Status: Aktif</option>
+                        <option value="Pindah">Status: Pindah</option>
+                        <option value="Menunggu">Status: Menunggu</option>
+                    </select>
+                    <button type="button" wire:click="bulkUpdateStatus" class="h-8 px-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium transition">
+                        Ubah
+                    </button>
+                </div>
+
+                <!-- Arsip Massal -->
+                <button type="button" wire:click="bulkArchive" wire:confirm="Arsipkan seluruh siswa yang dipilih?" class="h-8 px-2.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-medium transition">
+                    Arsip
+                </button>
+
+                <!-- Batal -->
+                <button type="button" wire:click="clearSelection" class="text-xs text-white/70 hover:text-white px-1">
+                    Batal
+                </button>
+            </div>
+        </div>
+    @endif
 </x-card>

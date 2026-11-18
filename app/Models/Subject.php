@@ -48,6 +48,11 @@ class Subject extends Model
         return $this->hasMany(Teacher::class, 'subject_id');
     }
 
+    public function schedules(): HasMany
+    {
+        return $this->hasMany(Schedule::class, 'subject_id');
+    }
+
     public function grades(): HasMany
     {
         return $this->hasMany(Grade::class, 'subject_id');

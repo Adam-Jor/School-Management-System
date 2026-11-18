@@ -18,6 +18,45 @@ class ClassController extends Controller
         return view('classes.index', compact('archivedCount'));
     }
 
+    public function show(Request $request, SchoolClass $schoolClass): View
+    {
+        $user = $request->user();
+        if ($user->isStudent()) {
+            $student = $user->student;
+            if (! $student || $student->class_id !== $schoolClass->id) {
+                abort(403, 'Anda hanya dapat mengakses informasi rombongan belajar kelas Anda sendiri.');
+            }
+        }
+
+        $schoolClass->load([
+            'students' => fn ($q) => $q->with('user')->orderBy('name'),
+            'teachers' => fn ($q) => $q->with('subject')->orderBy('name'),
+            'schedules' => fn ($q) => $q->with(['subject', 'teacher'])->orderBy('day_of_week')->orderBy('start_time'),
+        ]);
+
+        $todayAttendances = $schoolClass->attendances()
+            ->whereDate('date', today())
+            ->get();
+
+        $attendanceSummary = [
+            'Hadir' => $todayAttendances->where('status', 'Hadir')->count(),
+            'Izin' => $todayAttendances->where('status', 'Izin')->count(),
+            'Sakit' => $todayAttendances->where('status', 'Sakit')->count(),
+            'Alpa' => $todayAttendances->where('status', 'Alpa')->count(),
+        ];
+
+        return view('classes.show', [
+            'schoolClass' => $schoolClass,
+            'todayAttendances' => $todayAttendances,
+            'attendanceSummary' => $attendanceSummary,
+            'title' => 'Rombel '.$schoolClass->name,
+            'breadcrumbs' => [
+                ['label' => 'Data Kelas', 'url' => route('classes.index')],
+                ['label' => $schoolClass->name],
+            ],
+        ]);
+    }
+
     public function create(): View
     {
         $nextNumber = SchoolClass::withArchived()->count() + 1;

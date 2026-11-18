@@ -2,8 +2,10 @@
 
 namespace Database\Seeders;
 
+use App\Models\AcademicPeriod;
 use App\Models\Attendance;
 use App\Models\Grade;
+use App\Models\Schedule;
 use App\Models\SchoolClass;
 use App\Models\Student;
 use App\Models\Subject;
@@ -273,7 +275,54 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        // 7. Activity Logs (design.md Section 4.8)
+        // 7. Academic Periods (tbl_academic_periods)
+        $p1 = AcademicPeriod::create([
+            'name' => '2025/2026',
+            'semester' => 'Genap',
+            'start_date' => '2026-01-05',
+            'end_date' => '2026-06-20',
+            'is_active' => false,
+        ]);
+
+        $activePeriod = AcademicPeriod::create([
+            'name' => '2026/2027',
+            'semester' => 'Ganjil',
+            'start_date' => '2026-07-15',
+            'end_date' => '2026-12-20',
+            'is_active' => true,
+        ]);
+
+        // 8. Schedules (tbl_schedules)
+        $scheduleRoster = [
+            ['day' => 'Senin', 'start' => '07:30', 'end' => '09:00', 'room' => 'Ruang 10-A1'],
+            ['day' => 'Senin', 'start' => '09:15', 'end' => '10:45', 'room' => 'Lab Komputer 1'],
+            ['day' => 'Selasa', 'start' => '08:00', 'end' => '09:30', 'room' => 'Ruang 10-A1'],
+            ['day' => 'Rabu', 'start' => '07:30', 'end' => '09:00', 'room' => 'Lab IPA'],
+            ['day' => 'Kamis', 'start' => '10:00', 'end' => '11:30', 'room' => 'Ruang 10-A2'],
+            ['day' => 'Jumat', 'start' => '08:00', 'end' => '09:30', 'room' => 'Ruang 11-A1'],
+        ];
+
+        $allClasses = SchoolClass::all();
+        $allTeachers = Teacher::with('subject')->get();
+
+        foreach ($scheduleRoster as $idx => $slot) {
+            $cls = $allClasses[$idx % $allClasses->count()] ?? $allClasses->first();
+            $tch = $allTeachers[$idx % $allTeachers->count()] ?? $allTeachers->first();
+            if ($cls && $tch && $tch->subject) {
+                Schedule::create([
+                    'class_id' => $cls->id,
+                    'subject_id' => $tch->subject->id,
+                    'teacher_id' => $tch->id,
+                    'academic_period_id' => $activePeriod->id,
+                    'day_of_week' => $slot['day'],
+                    'start_time' => $slot['start'],
+                    'end_time' => $slot['end'],
+                    'room' => $slot['room'],
+                ]);
+            }
+        }
+
+        // 9. Activity Logs (design.md Section 4.8)
         activity()->enableLogging();
 
         $logs = [

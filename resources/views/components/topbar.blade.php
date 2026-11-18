@@ -46,23 +46,64 @@
                 <x-heroicon-o-magnifying-glass class="size-[18px] stroke-[1.5]" />
             </button>
 
-            <!-- Desktop Global Search with Keycap -->
-            <form action="{{ route('dashboard') }}" method="GET" class="hidden md:flex items-center relative">
-                <x-heroicon-o-magnifying-glass class="size-4 stroke-[1.5] text-muted absolute left-3 pointer-events-none" />
-                <input type="search"
-                       name="global_q"
-                       value="{{ request('global_q') }}"
-                       placeholder="Cari nama atau kode"
-                       aria-label="Pencarian global"
-                       class="w-60 lg:w-64 h-9 pl-9 pr-14 rounded-lg bg-sidebar border border-line text-xs text-ink placeholder:text-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15 transition-colors duration-150" />
+            <!-- Desktop Global Search with Keycap & Command Palette Trigger -->
+            <button type="button"
+                    @click="$dispatch('open-command-palette')"
+                    class="hidden md:flex items-center relative text-left group">
+                <x-heroicon-o-magnifying-glass class="size-4 stroke-[1.5] text-muted absolute left-3 pointer-events-none group-hover:text-ink transition-colors" />
+                <div class="w-56 lg:w-64 h-9 pl-9 pr-14 rounded-lg bg-sidebar border border-line text-xs text-muted flex items-center group-hover:border-primary/50 group-hover:text-ink transition-colors">
+                    <span>Cari atau navigasi...</span>
+                </div>
                 <kbd class="edudash-keycap absolute right-2">Ctrl+K</kbd>
-            </form>
+            </button>
 
-            <!-- Indikator Tahun Ajaran -->
-            <div class="hidden sm:flex items-center gap-2 h-9 px-3 rounded-lg bg-sidebar border border-line text-xs font-normal text-secondary">
-                <span class="size-2 rounded-full bg-success"></span>
-                <span class="tabular-nums">TA 2026/2027</span>
+            <!-- Dynamic Academic Period & Semester Switcher -->
+            @php
+                $activePeriod = current_academic_period();
+                $allPeriods = available_academic_periods();
+            @endphp
+            <div class="hidden sm:block relative" x-data="{ open: false }">
+                <button type="button"
+                        @click="open = !open"
+                        @click.outside="open = false"
+                        title="Beralih Tahun Ajaran / Semester"
+                        class="flex items-center gap-2 h-9 px-3 rounded-lg bg-sidebar border border-line text-xs font-normal text-secondary hover:text-ink hover:bg-raised transition-colors duration-150">
+                    <span class="size-2 rounded-full bg-success"></span>
+                    <span class="tabular-nums font-medium text-ink">{{ $activePeriod ? $activePeriod->name . ' (' . $activePeriod->semester . ')' : 'TA 2026/2027' }}</span>
+                    <x-heroicon-o-chevron-down class="size-3 text-muted" />
+                </button>
+
+                @if ($allPeriods->count() > 0)
+                    <div x-show="open"
+                         x-transition.opacity.duration.150ms
+                         style="display: none;"
+                         class="absolute right-0 mt-2 w-52 bg-surface rounded-xl p-1.5 shadow-lg border border-line z-50">
+                        <p class="px-2.5 py-1 text-[11px] font-semibold text-muted uppercase tracking-wider">Pilih Semester Aktif</p>
+                        @foreach ($allPeriods as $prd)
+                            <form action="{{ route('academic-periods.switch') }}" method="POST">
+                                @csrf
+                                <input type="hidden" name="period_id" value="{{ $prd->id }}">
+                                <button type="submit"
+                                        class="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs {{ $activePeriod?->id === $prd->id ? 'bg-primary-soft text-primary font-medium' : 'text-ink hover:bg-sidebar' }} transition-colors">
+                                    <span>{{ $prd->name }} ({{ $prd->semester }})</span>
+                                    @if ($activePeriod?->id === $prd->id)
+                                        <x-heroicon-s-check class="size-3.5 text-primary" />
+                                    @endif
+                                </button>
+                            </form>
+                        @endforeach
+                    </div>
+                @endif
             </div>
+
+            <!-- Theme Switcher (Dark / Light) -->
+            <button type="button"
+                    onclick="window.toggleTheme()"
+                    aria-label="Beralih tema gelap atau terang"
+                    title="Ganti Tema (Dark / Light)"
+                    class="size-9 rounded-lg bg-sidebar border border-line flex items-center justify-center text-secondary hover:bg-raised hover:text-ink transition-colors duration-150">
+                <x-heroicon-o-moon class="size-[18px] stroke-[1.5]" />
+            </button>
 
             <!-- Bell Notification -->
             <a href="{{ route('dashboard') }}#aktivitas"

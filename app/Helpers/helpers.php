@@ -1,11 +1,13 @@
 <?php
 
+use App\Models\AcademicPeriod;
 use App\Models\SchoolClass;
 use App\Models\Student;
 use App\Models\Subject;
 use App\Models\Teacher;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
@@ -131,5 +133,41 @@ if (! function_exists('upload_image')) {
         $file->move($directory, $fallbackName);
 
         return "uploads/{$folder}/{$fallbackName}";
+    }
+}
+
+if (! function_exists('current_academic_period')) {
+    /**
+     * Dapatkan periode akademik aktif saat ini (atau dari session).
+     */
+    function current_academic_period(): ?AcademicPeriod
+    {
+        try {
+            $sessionPeriodId = session('active_academic_period_id');
+            if ($sessionPeriodId) {
+                $period = AcademicPeriod::find($sessionPeriodId);
+                if ($period) {
+                    return $period;
+                }
+            }
+
+            return AcademicPeriod::where('is_active', true)->first();
+        } catch (Throwable $e) {
+            return null;
+        }
+    }
+}
+
+if (! function_exists('available_academic_periods')) {
+    /**
+     * Daftar periode akademik yang tersedia.
+     */
+    function available_academic_periods(): Collection
+    {
+        try {
+            return AcademicPeriod::orderByDesc('name')->orderBy('semester')->get();
+        } catch (Throwable $e) {
+            return new Collection;
+        }
     }
 }
