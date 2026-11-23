@@ -22,7 +22,7 @@
     @livewireStyles
 </head>
 
-<body wire:navigate class="bg-page text-ink antialiased min-h-screen selection:bg-primary selection:text-white" x-data="{
+<body class="bg-page text-ink antialiased min-h-screen selection:bg-primary selection:text-white" x-data="{
           mobileSidebarOpen: false,
           archiveModal: { open: false, action: '', name: '', code: '' },
           openArchiveModal(action, name, code = '') {

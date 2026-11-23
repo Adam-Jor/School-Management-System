@@ -46,14 +46,7 @@
         </div>
 
         <!-- Right Login Form Column (Order 1 on mobile) -->
-        <div class="order-1 lg:order-2 lg:col-span-7 p-5 sm:p-8 lg:p-10 flex flex-col justify-center"
-             x-data="{
-                 fillDemo(email) {
-                     this.$refs.emailInput.value = email;
-                     this.$refs.passwordInput.value = 'password';
-                     this.$refs.emailInput.focus();
-                 }
-             }">
+        <div class="order-1 lg:order-2 lg:col-span-7 p-5 sm:p-8 lg:p-10 flex flex-col justify-center">
             <div>
                 <p class="text-xs font-mono text-muted">PORTAL AKADEMIK TERPADU</p>
                 <h1 class="text-2xl font-medium tracking-[-0.01em] text-ink mt-1.5">
@@ -80,9 +73,9 @@
                     <input type="text"
                            id="email"
                            name="email"
-                           x-ref="emailInput"
-                           value="{{ old('email', 'admin@edudash.sch.id') }}"
+                           value="{{ old('email') }}"
                            placeholder="nama@edudash.sch.id"
+                           autocomplete="username"
                            autofocus
                            required
                            class="edudash-input {{ $errors->has('email') ? 'border-error bg-error-soft/20' : '' }}" />
@@ -98,9 +91,8 @@
                     <input type="password"
                            id="password"
                            name="password"
-                           x-ref="passwordInput"
-                           value="password"
                            placeholder="Kata sandi akun"
+                           autocomplete="current-password"
                            required
                            class="edudash-input {{ $errors->has('password') ? 'border-error bg-error-soft/20' : '' }}" />
                     @error('password')
@@ -110,10 +102,10 @@
 
                 <div class="flex items-center justify-between pt-1">
                     <label class="inline-flex items-center gap-2 text-xs text-secondary cursor-pointer">
-                        <input type="checkbox" name="remember" class="rounded border-line text-primary focus:ring-primary/20" checked />
+                        <input type="checkbox" name="remember" class="rounded border-line text-primary focus:ring-primary/20" />
                         <span>Ingat sesi masuk</span>
                     </label>
-                    <span class="text-xs text-muted">Sandi bawaan: <code class="edudash-keycap">password</code></span>
+                    <span class="text-xs text-muted">Akses terbatas untuk akun sekolah</span>
                 </div>
 
                 <div class="pt-2">
@@ -122,33 +114,6 @@
                     </button>
                 </div>
             </form>
-
-            <!-- Quick Role Switcher for Demo / Testing -->
-            <div class="mt-6 pt-5 border-t border-line">
-                <p class="text-xs text-muted mb-2.5">
-                    Akun pengujian peran (klik untuk mengisi kredensial)
-                </p>
-                <div class="grid grid-cols-3 gap-2">
-                    <button type="button"
-                            @click="fillDemo('admin@edudash.sch.id')"
-                            class="h-8 px-3 rounded-lg bg-sidebar border border-line text-ink text-xs font-medium hover:bg-raised transition-colors duration-150 text-left flex items-center justify-between">
-                        <span>Admin</span>
-                        <span class="font-mono text-[11px] text-muted">CRUD</span>
-                    </button>
-                    <button type="button"
-                            @click="fillDemo('budi.santoso@sch.id')"
-                            class="h-8 px-3 rounded-lg bg-sidebar border border-line text-ink text-xs font-medium hover:bg-raised transition-colors duration-150 text-left flex items-center justify-between">
-                        <span>Teacher</span>
-                        <span class="font-mono text-[11px] text-muted">Absensi</span>
-                    </button>
-                    <button type="button"
-                            @click="fillDemo('alya.putri@sch.id')"
-                            class="h-8 px-3 rounded-lg bg-sidebar border border-line text-ink text-xs font-medium hover:bg-raised transition-colors duration-150 text-left flex items-center justify-between">
-                        <span>Student</span>
-                        <span class="font-mono text-[11px] text-muted">Pribadi</span>
-                    </button>
-                </div>
-            </div>
         </div>
     </div>
 
