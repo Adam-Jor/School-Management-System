@@ -1,25 +1,26 @@
 # School Management System
 
-A lightweight, responsive School Management System built with **Laravel 11**, **Livewire 3**, **Alpine.js**, **Tailwind CSS**, **daisyUI (`edudash` theme)**, and **Heroicons**.
+Sistem Informasi Manajemen Sekolah yang ringan dan responsif, dibangun dengan **Laravel 11**, **Livewire 3**, **Alpine.js**, **Tailwind CSS**, **daisyUI (tema `edudash`)**, dan **Heroicons**.
 
-## Key Features
+## Fitur Utama
 
-- **Role-Based Authentication & Access Control (`tbl_users`):**
-  - **Admin (`admin@edudash.sch.id` / `password`):** Full CRUD access across all modules, CSV import/export, PDF export, and Archive/Restore management.
-  - **Teacher (`budi.santoso@sch.id` / `password`):** Read-only access to dashboard, student directory, teacher directory, classes, and subjects.
-  - **Student (`alya.putri@sch.id` / `password`):** Read-only access and personal academic profile overview.
-- **Role-Aware Dashboard:**
-  - Cached 5-column KPI summary strip (`Users`, `Students`, `Teachers`, `Classes`, `Subjects`).
-  - Interactive monthly student growth area chart (`Chart.js`) with accessible data table disclosure.
-  - School announcement promo card, latest students table with status badges, and real-time activity log (`spatie/laravel-activitylog`).
-- **Core Modules (`tbl_students`, `tbl_teachers`, `tbl_classes`, `tbl_subjects`, `tbl_users`):**
-  - Livewire 3 server-side tables (`wire:model.live.debounce.300ms` search, column sorting, pagination, skeleton loaders).
-  - Relational `JOIN` queries and eager loading (`with()`) to prevent N+1 queries.
-  - Custom `Archivable` soft-delete trait (`archived = 0/1`) with trash & restore functionality.
-  - Excel (`.xlsx`/`.csv`) import & export (`maatwebsite/excel`) and PDF reporting (`barryvdh/laravel-dompdf`).
-  - Automatic image upload compression & conversion to **WebP** (`public/uploads/{folder}/YmdHis-name.webp`).
-  - Indonesian number formatting (`1.042`) and Indonesian date formatting (`1 Feb 2024`).
-  - Dynamic slugs and hierarchical breadcrumbs on all pages.
+- **Autentikasi & Kontrol Akses Berbasis Peran (`tbl_users`):**
+  - **Admin (`admin@edudash.sch.id` / `password`):** Akses CRUD penuh di semua modul, impor/ekspor CSV, ekspor PDF, serta pengelolaan Arsip/Pemulihan data.
+  - **Guru (`budi.santoso@sch.id` / `password`):** Akses baca saja ke dashboard, direktori siswa, direktori guru, kelas, dan mata pelajaran.
+  - **Siswa (`alya.putri@sch.id` / `password`):** Akses baca saja dan ringkasan profil akademik pribadi.
+- **Dashboard Sesuai Peran:**
+  - Ringkasan KPI 5 kolom yang di-cache (`Pengguna`, `Siswa`, `Guru`, `Kelas`, `Mata Pelajaran`).
+  - Grafik area pertumbuhan siswa bulanan interaktif (`Chart.js`) dengan tabel data alternatif yang aksesibel.
+  - Kartu pengumuman sekolah, tabel siswa terbaru dengan badge status, dan log aktivitas real-time (`spatie/laravel-activitylog`).
+- **Modul Inti (`tbl_students`, `tbl_teachers`, `tbl_classes`, `tbl_subjects`, `tbl_users`):**
+  - Tabel server-side Livewire 3 (pencarian `wire:model.live.debounce.300ms`, pengurutan kolom, paginasi, skeleton loader).
+  - Query relasional `JOIN` dan eager loading (`with()`) untuk mencegah query N+1.
+  - Trait soft-delete `Archivable` kustom (`archived = 0/1`) dengan fungsi tempat sampah & pemulihan.
+  - Impor & ekspor Excel (`.xlsx`/`.csv`) (`maatwebsite/excel`) dan laporan PDF (`barryvdh/laravel-dompdf`).
+  - Kompresi dan konversi otomatis unggahan gambar ke **WebP** (`public/uploads/{folder}/YmdHis-name.webp`).
+  - Format angka Indonesia (`1.042`) dan format tanggal Indonesia (`1 Feb 2024`).
+  - Slug dinamis dan breadcrumb hierarkis di semua halaman.
+
 
 ## Instalasi
 
@@ -37,7 +38,7 @@ A lightweight, responsive School Management System built with **Laravel 11**, **
 1. **Ambil kode proyek**
 
    ```bash
-   git clone <url-repo> School-Management-System
+   git clone https://github.com/Adam-Jor/School-Management-System.git School-Management-System
    cd School-Management-System
    ```
 
