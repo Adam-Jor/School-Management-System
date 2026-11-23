@@ -4,7 +4,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Masuk — Edudash SMA Contoh Nusantara</title>
+    <title>Masuk — School Management SMA Contoh Nusantara</title>
+    <link rel="icon" type="image/png" href="{{ asset('img/logo-icon.png') }}">
+    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
@@ -15,9 +17,10 @@
         <div class="order-2 lg:order-1 lg:col-span-5 bg-sidebar border-t lg:border-t-0 lg:border-r border-line p-5 sm:p-8 flex flex-col justify-between">
             <div>
                 <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2.5">
-                        <span class="size-7 rounded-md bg-ink text-white font-semibold text-xs flex items-center justify-center">ED</span>
-                        <span class="text-base font-semibold text-ink">Edudash</span>
+                    <div class="flex items-center">
+                        <img src="{{ asset('img/logo-school-management.png') }}?v={{ filemtime(public_path('img/logo-school-management.png')) }}"
+                             alt="School Management"
+                             class="h-8 w-auto max-w-[170px] object-contain" />
                     </div>
                     <span class="edudash-keycap">TA 2026/2027</span>
                 </div>

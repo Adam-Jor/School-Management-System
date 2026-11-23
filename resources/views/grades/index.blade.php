@@ -67,7 +67,7 @@
             <form action="{{ route('grades.index') }}" method="GET" class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
                 <div class="grid grid-cols-1 sm:flex sm:flex-wrap items-center gap-2.5 w-full sm:w-auto">
                     @unless ($user->isStudent())
-                        <select name="class_id" onchange="this.form.submit()" class="h-10 sm:h-9 px-3.5 rounded-lg bg-sidebar border border-line text-xs font-medium text-ink w-full sm:w-auto">
+                        <select name="class_id" onchange="this.form.requestSubmit()" class="h-10 sm:h-9 px-3.5 rounded-lg bg-sidebar border border-line text-xs font-medium text-ink w-full sm:w-auto">
                             <option value="">Semua Kelas</option>
                             @foreach ($classes as $cls)
                                 <option value="{{ $cls->id }}" @selected((string) $classId === (string) $cls->id)>{{ $cls->name }}</option>
@@ -75,7 +75,7 @@
                         </select>
                     @endunless
 
-                    <select name="subject_id" onchange="this.form.submit()" class="h-10 sm:h-9 px-3.5 rounded-lg bg-sidebar border border-line text-xs font-medium text-ink w-full sm:w-auto">
+                    <select name="subject_id" onchange="this.form.requestSubmit()" class="h-10 sm:h-9 px-3.5 rounded-lg bg-sidebar border border-line text-xs font-medium text-ink w-full sm:w-auto">
                         <option value="">Semua Mata Pelajaran</option>
                         @foreach ($subjects as $sub)
                             <option value="{{ $sub->id }}" @selected((string) $subjectId === (string) $sub->id)>{{ $sub->name }}</option>

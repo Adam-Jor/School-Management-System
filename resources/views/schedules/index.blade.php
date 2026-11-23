@@ -19,12 +19,12 @@
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <!-- Day Pills -->
             <div class="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0">
-                <a href="{{ route('schedules.index', ['class_id' => $selectedClassId]) }}"
+                <a href="{{ route('schedules.index', ['class_id' => $selectedClassId]) }}" wire:navigate
                    class="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors whitespace-nowrap {{ empty($selectedDay) ? 'bg-ink text-white' : 'bg-sidebar text-secondary hover:text-ink hover:bg-raised' }}">
                     Semua Hari
                 </a>
                 @foreach (['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'] as $d)
-                    <a href="{{ route('schedules.index', ['class_id' => $selectedClassId, 'day' => $d]) }}"
+                    <a href="{{ route('schedules.index', ['class_id' => $selectedClassId, 'day' => $d]) }}" wire:navigate
                        class="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors whitespace-nowrap {{ $selectedDay === $d ? 'bg-ink text-white' : 'bg-sidebar text-secondary hover:text-ink hover:bg-raised' }}">
                         {{ $d }}
                     </a>
@@ -38,7 +38,7 @@
                         <input type="hidden" name="day" value="{{ $selectedDay }}">
                     @endif
                     <select name="class_id"
-                            onchange="this.form.submit()"
+                            onchange="this.form.requestSubmit()"
                             class="edudash-select text-xs h-9 w-44">
                         <option value="">Semua Rombel ({{ $classes->count() }})</option>
                         @foreach ($classes as $cls)

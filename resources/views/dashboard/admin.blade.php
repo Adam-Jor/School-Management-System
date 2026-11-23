@@ -213,7 +213,7 @@
                 </div>
 
                 <select name="status"
-                        onchange="this.form.submit()"
+                        onchange="this.form.requestSubmit()"
                         aria-label="Filter status siswa"
                         class="h-9 px-3 rounded-lg bg-sidebar border border-line text-xs font-normal text-ink focus:border-primary focus:outline-none">
                     <option value="">Semua status</option>

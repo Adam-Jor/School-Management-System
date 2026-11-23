@@ -6,7 +6,6 @@ use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClassController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\DesignSystemController;
 use App\Http\Controllers\GradeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ScheduleController;
@@ -71,9 +70,6 @@ Route::middleware('auth')->group(function () {
 
     // Academic Period Switcher
     Route::post('/academic-periods/switch', [AcademicPeriodController::class, 'switch'])->name('academic-periods.switch');
-
-    // Living Styleguide & Design System
-    Route::get('/design-system', [DesignSystemController::class, 'index'])->name('design-system.index');
 
     // Admin-only CRUD Routes (Users, Teachers, Students CRUD, Classes CRUD, Subjects CRUD, Schedules Admin, Archive)
     Route::middleware('role:admin')->group(function () {

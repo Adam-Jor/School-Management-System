@@ -9,6 +9,7 @@
 
 @layer base {
     :root, [data-theme="edudash"] {
+        --livewire-progress-bar-color: #4F46E5;
         --color-bg-page: #F5F7FA;
         --color-bg-surface: #FFFFFF;
         --color-bg-sidebar: #F8FAFC;
@@ -19,19 +20,6 @@
         --color-muted: #6B7487;
         --color-primary-soft: #EEF2FF;
         --color-card-shadow: 0 1px 2px rgba(17, 24, 39, 0.05);
-    }
-
-    [data-theme="edudash-dark"] {
-        --color-bg-page: #0B0F19;
-        --color-bg-surface: #111827;
-        --color-bg-sidebar: #0F172A;
-        --color-bg-raised: #1F2937;
-        --color-line: #1F2937;
-        --color-ink: #F9FAFB;
-        --color-secondary: #9CA3AF;
-        --color-muted: #6B7280;
-        --color-primary-soft: rgba(99, 102, 241, 0.18);
-        --color-card-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
     }
 
     html {

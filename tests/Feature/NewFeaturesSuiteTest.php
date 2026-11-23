@@ -102,14 +102,6 @@ beforeEach(function () {
     ]);
 });
 
-test('design system styleguide route renders successfully for authenticated user', function () {
-    $response = $this->actingAs($this->adminUser)->get(route('design-system.index'));
-    $response->assertOk()
-        ->assertSee('Living Styleguide')
-        ->assertSee('Command Palette')
-        ->assertSee('Slide-Over / Bottom Sheet');
-});
-
 test('academic period switcher updates active period session and helpers return it', function () {
     $period2 = AcademicPeriod::create([
         'name' => '2026/2027',

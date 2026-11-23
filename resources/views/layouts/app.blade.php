@@ -4,29 +4,25 @@
 ])
 <!DOCTYPE html>
 <html lang="id" data-theme="edudash">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $title }} — EDUDASH School Management System</title>
+    <title>{{ $title }} — School Management System</title>
+    <link rel="icon" type="image/png" href="{{ asset('img/logo-icon.png') }}">
+    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
 
-    <!-- Theme Initialization Script (Prevent Flash) -->
+    <!-- Reset Stored Theme -->
     <script>
-        (function() {
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme) {
-                document.documentElement.setAttribute('data-theme', savedTheme);
-            } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                document.documentElement.setAttribute('data-theme', 'edudash-dark');
-            }
-        })();
+        try { localStorage.removeItem('theme'); } catch (e) { }
     </script>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
-<body class="bg-page text-ink antialiased min-h-screen selection:bg-primary selection:text-white"
-      x-data="{
+
+<body wire:navigate class="bg-page text-ink antialiased min-h-screen selection:bg-primary selection:text-white" x-data="{
           mobileSidebarOpen: false,
           archiveModal: { open: false, action: '', name: '', code: '' },
           openArchiveModal(action, name, code = '') {
@@ -45,11 +41,8 @@
 
     <div class="flex min-h-screen">
         <!-- Mobile Sidebar Backdrop -->
-        <div x-show="mobileSidebarOpen"
-             x-transition.opacity.duration.150ms
-             @click="mobileSidebarOpen = false"
-             class="fixed inset-0 bg-ink/30 z-40 lg:hidden"
-             style="display: none;"></div>
+        <div x-show="mobileSidebarOpen" x-transition.opacity.duration.150ms @click="mobileSidebarOpen = false"
+            class="fixed inset-0 bg-ink/30 z-40 lg:hidden" style="display: none;"></div>
 
         <!-- Sidebar (240px desktop, drawer on mobile) -->
         <x-sidebar />
@@ -73,15 +66,7 @@
     <x-modal-confirm />
 
     <script>
-        window.toggleTheme = function() {
-            const current = document.documentElement.getAttribute('data-theme') || 'edudash';
-            const next = current === 'edudash-dark' ? 'edudash' : 'edudash-dark';
-            document.documentElement.setAttribute('data-theme', next);
-            localStorage.setItem('theme', next);
-            window.dispatchEvent(new CustomEvent('theme-changed', { detail: { theme: next } }));
-        };
-
-        window.openDrawer = function(detail) {
+        window.openDrawer = function (detail) {
             window.dispatchEvent(new CustomEvent('open-drawer', { detail }));
         };
     </script>
@@ -89,4 +74,5 @@
     @livewireScripts
     @stack('scripts')
 </body>
+
 </html>

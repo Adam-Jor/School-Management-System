@@ -16,7 +16,7 @@
                 <label class="block text-xs font-medium text-ink mb-1.5">
                     {{ $user->isTeacher() ? 'Kelas yang Anda Ajar' : 'Pilih Kelas' }}
                 </label>
-                <select name="class_id" onchange="this.form.submit()" class="edudash-select h-10 text-xs" @disabled($classes->isEmpty())>
+                <select name="class_id" onchange="this.form.requestSubmit()" class="edudash-select h-10 text-xs" @disabled($classes->isEmpty())>
                     @forelse ($classes as $cls)
                         <option value="{{ $cls->id }}" @selected($selectedClassId === $cls->id)>
                             {{ $cls->name }} ({{ $cls->code }})
@@ -29,12 +29,12 @@
 
             <div>
                 <label class="block text-xs font-medium text-ink mb-1.5">Tanggal Absensi Harian</label>
-                <input type="date" name="date" value="{{ $selectedDate }}" onchange="this.form.submit()" class="edudash-input h-10 text-xs" />
+                <input type="date" name="date" value="{{ $selectedDate }}" onchange="this.form.requestSubmit()" class="edudash-input h-10 text-xs" />
             </div>
 
             <div>
                 <label class="block text-xs font-medium text-ink mb-1.5">Bulan Rekapitulasi</label>
-                <input type="month" name="month" value="{{ $selectedMonth }}" onchange="this.form.submit()" class="edudash-input h-10 text-xs" />
+                <input type="month" name="month" value="{{ $selectedMonth }}" onchange="this.form.requestSubmit()" class="edudash-input h-10 text-xs" />
             </div>
 
             <div>
